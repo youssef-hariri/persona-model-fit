@@ -1,0 +1,13 @@
+persona,domain,d,p_value,p_adjusted,significant_fdr
+Culture_5,Reasoning,0.452826074954094,,,False
+Culture_5,Instruction,0.15858040160475162,,,False
+Culture_5,Creative,0.20698926303110143,,,False
+Culture_5,General Knowledge,0.4950222642281559,,,False
+Culture_Expert,Reasoning,0.17463538270901022,,,False
+Culture_Expert,Instruction,0.07933467326707745,,,False
+Culture_Expert,Creative,0.031944759842573486,,,False
+Culture_Expert,General Knowledge,0.1743240197364957,,,False
+Culture_11,Reasoning,-0.12386753981579526,,,False
+Culture_11,Instruction,-0.19770225118025367,,,False
+Culture_11,Creative,-0.17047670723341501,,,False
+Culture_11,General Knowledge,-0.11828178582904353,,,False

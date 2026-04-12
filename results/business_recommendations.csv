@@ -1,0 +1,5 @@
+recommendation_type,recommended_model,recommended_persona,effect_size_d,cost_savings_pct,egr
+Maximize Novelty,Claude,Culture_5,0.908,40.0,N/A
+Maximize Cost Efficiency,GPT,Culture_5,0.501,86.7,9.17
+Balanced Trade-off,GPT,Culture_Expert,0.301,86.7,8.53
+Avoid,Qwen,Culture_11,-0.519,N/A,N/A
