@@ -1,6 +1,7 @@
 # Cultural Personas in LLMs: A Contingency Model for Novelty and Cost-Efficiency
 
-**Repository for the paper:** *"Doing More with Less: How Cultural Personas Bridge the Cost-Performance Gap in LLMs"*
+**Repository for the paper:** *"Doing More with Less: How Cultural Personas Bridge the Cost-Performance Gap in LLMs"* 
+DOI 10.5281/zenodo.19533619
 
 ---
 
