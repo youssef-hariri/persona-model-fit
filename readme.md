@@ -29,7 +29,7 @@ Key corrected headline numbers:
 | `results/response_grain/` | Frozen v2 outputs (21 CSVs + run log), hashed and verified |
 | `paper/` | Original and revised LaTeX sources, revised figures (`figures_v2/`), `CHANGE_LOG.md`, `DATA_MAP.md` (claim-to-data map), `SEMANTIC_MAP.md` (claim-to-evidence semantic map), `audit/` (audit memo and fix proposal) |
 
-The root PDF (`Youssef_Hariri_doing_more_with_less_llm_personas.pdf`) is the **original April 2026 version**; the revised compiled PDF is on Zenodo under the same DOI. The CSVs directly under `results/` are the **superseded rating-grain outputs**, kept as an audit trail.
+The root PDF (`Youssef_Hariri_doing_more_with_less_llm_personas.pdf`) is the **revised September 2026 version** (same as Zenodo, same DOI). The CSVs directly under `results/` are the **superseded rating-grain outputs**, kept as an audit trail.
 
 To verify the correction end to end:
 
