@@ -1,0 +1,1072 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{multirow}
+
+
+% For line spacing (many journals require 1.5 or double)
+\usepackage{setspace}
+\doublespacing  % or \onehalfspacing
+
+% For APA-style references (if required)
+\usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
+\addbibresource{references.bib}
+% For Times New Roman font
+\usepackage{times}
+
+\usepackage{xcolor}
+\usepackage{pagecolor}
+\usepackage{ifthen}
+
+% Set to 1 for night mode, 0 for day mode
+\def\nightmode{1}
+
+\ifthenelse{\equal{\nightmode}{0}}{
+    \definecolor{darkbg}{RGB}{30,30,30}
+    \pagecolor{darkbg}
+    \color{white}
+    \hypersetup{colorlinks=true, linkcolor=cyan, urlcolor=cyan}
+}{
+    \pagecolor{white}
+    \color{black}
+}
+
+
+
+% Table formatting
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+\begin{document}
+
+\title{Doing More with Less: How Cultural Personas Bridge the Cost-Performance Gap in LLMs}
+\author{Youssef Hariri \\ yousef.hariri@rennes-sb.com}
+\date{April 12 2026}
+\maketitle
+
+
+\begin{abstract}
+
+Cultural personas have emerged as a promising technique for enhancing creativity in Large Language Models, yet their effectiveness across different architectures, domains, and economic contexts remains poorly understood. This study provides a systematic evaluation of three cultural personas—Culture\_5 (innovator), Culture\_Expert (implementer), and Culture\_11 (cultural specialist)—across seven large language models representing both Western (Claude, Gemini, GPT, Llama, Mistral) and Eastern (DeepSeek, Qwen) training regions. (Gemini's unique response format, containing reasoning traces not present in other models, limited direct comparability; results are reported for completeness.) Using 100 problems spanning four domains (Creative, General Knowledge, Instruction, Reasoning), we analyze over 25,000 responses using a multi-judge evaluation framework.
+
+Inter-rater reliability analysis revealed that Novelty was the only dimension with good agreement among judges (Fleiss' \(\kappa = 0.68\)), justifying our focused analysis. Persona effectiveness follows a contingency model rather than a universal rule: effects are highly model-dependent. Claude with Culture\_5 showed a large positive effect on Novelty (\(d = 0.908\)), while Qwen with Culture\_11 showed a medium negative effect (\(d = -0.519\)). Domain-specific analysis revealed that Culture\_5 performed best on General Knowledge (\(d = 0.495\)) and Reasoning (\(d = 0.453\)), while Culture\_11 consistently harmed Novelty across all domains (\(d = -0.170\) to \(-0.198\)).
+
+Economically, small models with personas achieved superior performance at 40-88\% lower cost. The Efficiency Gain Ratio (EGR) provides a unified metric: GPT combinations achieved exceptional economic value (EGR up to 9.17, where EGR > 5 indicates exceptional value). Evidence for regional moderation was weak (Bayes Factor \(= 0.331\)), suggesting training origin may be less important than architectural factors.
+
+These findings demonstrate that persona effectiveness is contingent on model architecture and task domain, and establish the economic viability of small models with personas for novelty generation. For practitioners, the path forward is not to seek a single "best" persona, but to match the right persona to the right model for the right task.
+
+\textbf{Keywords:} Large Language Models, Cultural Personas, Novelty, Cross-Architecture Evaluation, Cost-Performance Analysis
+\end{abstract}
+
+\noindent\textbf{DOI:} 10.5281/zenodo.19533619
+\section*{List of Abbreviations}
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Abbreviation} & \textbf{Definition} \\
+EGR & Efficiency Gain Ratio \\
+LLM & Large Language Model \\
+MoE & Mixture-of-Experts \\
+PBP & Persona-Based Prompting \\
+RLHF & Reinforcement Learning from Human Feedback \\
+SFT & Supervised Fine-Tuning \\
+SLM & Small Language Model \\
+\end{tabular}
+\end{center}
+
+\section{Introduction}
+
+Large Language Models have demonstrated remarkable capabilities across diverse domains, yet their ability to generate truly creative outputs remains contested. While LLMs excel at producing fluent and coherent text, research reveals a "creativity gap": they surpass average human performance in divergent association tasks but consistently fail to match highly creative human individuals (\cite{ antoine_bellemare_pepin_a5621579, vikram_arora_67282d96}). This gap is further complicated by the "Alignment Tax"—the homogenization of outputs resulting from Reinforcement Learning from Human Feedback, which suppresses creative diversity in favor of safe, predictable responses (\cite{ behnam_mohammadi_78154429,michael_ryan_c7257c47}).
+
+One promising approach to unlocking suppressed creativity is persona-based prompting (PBP). By embedding descriptive social roles into system prompts, PBP aims to overcome the model's default "helpful assistant" persona and tap into its latent ability to simulate diverse cognitive styles (\cite{christina_lu_520bd0ae,jing_yang_699d9c2c}). Prior work has demonstrated that personas can shift model judgment by 10-15\% and improve Theory-of-Mind reasoning (\cite{tiancheng_hu_49571f40,gerard_yeo_2544df62}). However, recent benchmarks reveal a performance dissociation: state-of-the-art models sometimes fail to outperform less advanced models in maintaining persona faithfulness, suggesting that persona capability is a distinct dimension of intelligence that does not scale linearly with model size (\cite{vinay_samuel_301ec4c0}).
+
+Despite these advances, critical gaps remain. First, existing evaluations have primarily focused on Western models, leaving open the question of how personas interact with models trained on Eastern cultural corpora. The "Cultural Gene" hypothesis posits that foundational values embedded during pre-training remain resilient after fine-tuning (\cite{emanuel_z__fenech_borg_a4a3e300}), but empirical evidence across diverse architectures is lacking. Second, domain-specific effects of personas remain underexplored. While the "Cultural Persona Paradox" suggests that personas intended to increase sensitivity can instead activate stereotypical noise (\cite{mahammed_kamruzzaman_a0ec385e, kharchenkoHowWellLLMs2024}), it is unclear which domains are most vulnerable to this effect. Third, the economic implications of persona-based steering have received little attention. With inference costs accounting for up to 90\% of production expenses (\cite{francisco_dur_n_a28bb68b}), understanding whether small models with personas can achieve comparable performance to large models at lower cost is critical for both sustainability and accessibility (\cite{anuj_kumar_1c38e9e4, jennifer_haase_36a334aa}).
+
+This study addresses these gaps through a systematic evaluation of seven large language models—representing both Western (Claude, Gemini, GPT, Llama, Mistral) and Eastern (DeepSeek, Qwen) training regions—across 100 problems spanning four domains: Creative, General Knowledge, Instruction, and Reasoning. We evaluate three cultural personas designed along creativity dimensions: Culture\_5 (innovator), Culture\_Expert (implementer), and Culture\_11 (cultural specialist). Our analysis integrates multiple methodological approaches: inter-rater reliability assessment to validate judge consistency, effect size estimation with bootstrap confidence intervals, two-way ANOVA for interaction effects, and economic metrics including the Efficiency Gain Ratio (EGR).
+
+This study makes five contributions. First, we provide a cross-architecture evaluation of cultural personas across both Western and Eastern models, revealing that persona effectiveness follows a contingency model rather than a universal rule. Second, we identify domain-specific patterns showing that persona effects vary by task type, with Culture\_5 performing best on General Knowledge and Reasoning problems. Third, we demonstrate that inter-rater reliability varies substantially across creativity dimensions, with Novelty showing good agreement (\(\kappa = 0.68\)) while other dimensions show poor to fair agreement, justifying a focused analysis on Novelty. Fourth, we introduce the Efficiency Gain Ratio (EGR) as a unified metric for cost-performance evaluation, demonstrating that small models with personas achieve superior performance at 40-88\% lower cost, with GPT combinations achieving exceptional economic value (EGR up to 9.17). Fifth, cross-model comparisons showed that DeepSeek with Culture\_5 achieved comparable Novelty performance to Claude Opus at 60× lower cost, challenging assumptions that only large, expensive models deliver high value responses.
+
+The remainder of this paper is structured as follows. Section 2 reviews related literature on creativity in LLMs, cultural dimensions, persona-based prompting, and cost-performance analysis. Section 3 describes our methodology, including models, personas, problem dataset, evaluation framework, and statistical analyses. Section 4 presents our results, focusing on Novelty as the primary outcome measure. Section 5 discusses the theoretical and practical implications of our findings, situates them within existing literature, and acknowledges limitations. Section 6 concludes with a summary of contributions and directions for future research.
+
+\section{Literature Review}
+
+This review synthesizes three distinct but interconnected streams of research: creativity in Large Language Models, cultural dimensions in AI, and persona-based steering. We then integrate these streams to articulate a contingency model of persona effectiveness and identify the research gaps that motivate this study.
+
+\subsection{Creativity in LLMs}
+
+\subsubsection{The Divergent-Convergent Dichotomy}
+
+The intersection of artificial intelligence and cognitive psychology has necessitated a shift from purely functional evaluations of LLMs to more nuanced psychometric assessments. Central to this shift is the application of Guilford's Structure of Intellect Model, which distinguishes between divergent thinking—the generation of novel and diverse ideas—and convergent thinking—the refinement of ideas into a single, coherent solution (\cite{vikram_arora_67282d96, harsh_kumar_84fce084}). These two modes map directly to the creativity dimensions used in this study: Novelty and Flexibility align with divergent thinking, while Usefulness and Elaboration align with convergent thinking.
+
+Empirical evidence suggests that LLMs exhibit a "creativity gap" when compared to human experts. While state-of-the-art LLMs often surpass average human performance in divergent association tasks, they consistently fail to reach the performance levels of highly creative human individuals (\cite{antoine_bellemare_pepin_a5621579}). This performance is further bifurcated by the creative phase: LLMs excel in divergent phases but struggle in convergent phases requiring selective precision (\cite{harsh_kumar_84fce084}). Following Boden's theory, LLMs primarily demonstrate P-creativity (psychological creativity) rather than H-creativity (historical creativity), as their outputs are fundamentally recombinations of existing training data (\cite{vikram_arora_67282d96, harsh_kumar_84fce084}).
+
+\subsubsection{The Alignment-Creativity Trade-off}
+
+A critical theoretical tension exists between model safety (alignment) and creative potential. Reinforcement Learning from Human Feedback (RLHF), while essential for stabilizing the "helpful assistant" persona, has been found to cause homogenization, reducing semantic entropy and creative diversity (\cite{antoine_bellemare_pepin_a5621579, behnam_mohammadi_78154429}). This "Alignment Tax" results in models that are more predictable but significantly less novel (\cite{michael_ryan_c7257c47}). Research suggests that persona steering may be necessary to "unlock" suppressed creative diversity (\cite{mete_ismayilzada_d0dea915}).
+
+\subsection{Cultural Dimensions in AI}
+
+\subsubsection{Hofstede's and Hall's Frameworks and the "Cultural Gene"}
+
+The evaluation of cultural alignment in LLMs has evolved toward the systematic mapping of models onto established socio-psychological frameworks. The most prominent are Hofstede's Cultural Dimensions Theory and Hall's Cultural Dimensions (high-context vs. low-context communication) (\cite{kharchenkoHowWellLLMs2024, reem_i__masoud_f9cde5f1}). This study integrates both Hofstede's and Hall's frameworks to define the creativity criteria used to design the three cultural personas, following the methodology established in prior work (\cite{haririLLMCreativityMeasuringExplaining2025}).
+
+Research identifies a pervasive "Western-centric" bias in global models like GPT-4, which consistently score high on Individualism and low on Power Distance—values that mirror the demographic profile of their training data (\cite{emanuel_z__fenech_borg_a4a3e300, nicholas_sukiennik_6b60add4}). This "Cultural Gene" of the model—a foundational value set embedded during pre-training—remains resilient even after fine-tuning (\cite{emanuel_z__fenech_borg_a4a3e300}). While Western models favor Individualism and low-context communication, models trained on Eastern corpora exhibit significantly higher scores in Collectivism, Uncertainty Avoidance, and high-context communication styles (\cite{minsang_kim_43ca3c83}).
+
+\subsubsection{The Alignment-Culture Gap}
+
+Alignment processes—Supervised Fine-Tuning (SFT) and RLHF—act as secondary filters that often enforce homogenized value sets (\cite{minsang_kim_43ca3c83}). RLHF tends to pull models toward a "global average" disproportionately influenced by Western liberal values, creating an "Alignment-Culture Gap" where responses lack deep contextual nuance for non-Western contexts (\cite{nicholas_sukiennik_6b60add4}). This underscores the need for cross-architecture evaluation of cultural persona effectiveness.
+
+\subsection{Persona-Based Steering}
+
+\subsubsection{The "Assistant Axis" and Default Personas}
+
+Current LLMs are predominantly aligned to a "helpful assistant" default persona (\cite{christina_lu_520bd0ae}). However, research shows this default can be restrictive; assigning a generic persona does not consistently improve performance compared to a null prompt (\cite{mingqian_zheng_2dd4a908}). Persona-based prompting (PBP) is therefore used to break this axis and elicit specialized reasoning that the default persona might suppress.
+
+\subsubsection{The Persona Effect}
+
+Frameworks like PHAnToM have demonstrated that assigning specific personas significantly affects a model's Theory-of-Mind capabilities (\cite{gerard_yeo_2544df62}). Studies show that when prompted with a detailed social persona, models improve their ability to navigate complex social scenarios, though gains are architecture-dependent (\cite{jing_yang_699d9c2c}). The "Persona Effect" can shift model judgment by 10-15\%, even on tasks where the persona is technically irrelevant (\cite{tiancheng_hu_49571f40}). As persona profiles become more detailed, model responses become more internally consistent (\cite{yuqing_bai_9d1d72ff}).
+
+\subsubsection{Persona Capability as a Distinct Dimension}
+
+Benchmarks like PersonaGym reveal a performance dissociation: state-of-the-art models like GPT-4 sometimes fail to outperform less advanced models in maintaining persona faithfulness (\cite{vinay_samuel_301ec4c0}). This suggests "persona capability" is a distinct dimension of intelligence that does not scale linearly with model size (\cite{vinay_samuel_301ec4c0}). Persona fidelity also fluctuates by task type and social desirability. Models maintain higher fidelity in structured tasks compared to open-ended generation (\cite{jisu_shin_0a44d92a}). This drop is most pronounced when models are assigned traits not socially preferred, suggesting RLHF implicitly guides models toward socially acceptable personas (\cite{manon_reusens_1659b7a7}).
+
+\subsubsection{Research Gaps}
+
+Despite these advances, critical gaps remain. First, existing evaluations have primarily focused on Western models, leaving open how personas interact with Eastern-trained models. Second, domain-specific effects of personas remain underexplored. Third, the economic implications of persona-based steering have received little attention. This study addresses these gaps through a systematic evaluation of seven large language models representing both Western and Eastern training regions across 100 problems spanning four domains.
+
+\subsection{Cost-Performance Analysis}
+
+\subsubsection{The Economic Case for Smaller Models}
+
+The rapid scaling of LLMs has introduced a fundamental tension between performance and escalating costs. Inference accounts for up to 90\% of production costs (\cite{francisco_dur_n_a28bb68b}), leading to "LLM Right-sizing"—determining when smaller, locally deployed models are "good enough" for specific tasks (\cite{jennifer_haase_36a334aa}). Fine-tuned Small Language Models (SLMs) can maintain comparable performance to LLMs while producing significantly lower emissions (\cite{anandita_garg_c5aff6a3,anuj_kumar_1c38e9e4}).
+
+\subsubsection{Efficiency Metrics}
+
+Novel efficiency metrics have been proposed to address real-world deployment constraints. The Carbon Efficient Gain Index (CEGI) quantifies carbon emission per unit of percentage gain per million parameters (\cite{anuj_kumar_1c38e9e4}). The Efficiency Gain Ratio (EGR) unifies performance and cost considerations:
+
+\begin{equation}
+EGR = \frac{\text{Performance}_{\text{Condition\_A}} / \text{Performance}_{\text{Condition\_B}}}{\text{Cost}_{\text{Condition\_A}} / \text{Cost}_{\text{Condition\_B}}}
+\end{equation}
+
+An $EGR > 1.0$ indicates economic value; $EGR > 2.0$ indicates strong value; $EGR > 5.0$ indicates exceptional value; $EGR > 10.0$ indicates transformative value (\cite{your_name_5e6c21fb}). This metric provides a unified framework for evaluating whether the performance boost from a persona justifies its associated costs. It will therefore be used in this study to assess the economic impact of the different experiments settings.
+
+\section{Methodology}
+
+\subsection{Research Design}
+
+This study employs a controlled experimental design to evaluate the effectiveness of cultural personas across multiple LLMs. The independent variables are model architecture (seven levels), persona condition (five levels), and problem domain (four levels). The dependent variables are the five individual creativity dimension scores (Novelty, Usefulness, Flexibility, Elaboration, Cultural Sensitivity) and economic metrics (cost savings, EGR). Based on inter-rater reliability analysis (Section 3.6), we focus our primary analysis on Novelty, the only dimension with good agreement among judges. All experimental procedures were conducted in March 2025.
+
+\subsection{Models Evaluated}
+
+Seven large language models were evaluated, representing both Western and Eastern training regions:
+
+\subsubsection{Western Models}
+\begin{itemize}
+    \item \textbf{Claude:} claude-sonnet-4-6 (small), claude-opus-4-6 (large) — Anthropic
+    \item \textbf{GPT:} gpt-5-mini-2025-08-07 (small), gpt-5.4-2026-03-05 (large) — OpenAI
+    \item \textbf{Llama:} Meta-Llama-3.1-8B-Instruct-Turbo (small), Llama-3.3-70B-Instruct-Turbo (large) — Meta (via Together.ai)
+    \item \textbf{Mistral:} Mixtral-8x7B-Instruct-v0.1 (small), Mistral-Small-24B-Instruct-2501 (large) — Mistral AI (via Together.ai)
+    \item \textbf{Gemini:} gemini-3.1-flash-lite-preview (small), gemini-3.1-pro-preview (large) — Google \footnotesize Gemini's responses contained reasoning traces affecting direct comparability (see Section 4.6).
+\end{itemize}
+
+\subsubsection{Eastern Models}
+\begin{itemize}
+    \item \textbf{DeepSeek:} deepseek-chat (small), deepseek-reasoner (large) — DeepSeek
+    \item \textbf{Qwen:} Qwen2.5-7B-Instruct-Turbo (small), Qwen3-Next-80B-A3B-Instruct (large) — Alibaba (via Together.ai)
+\end{itemize}
+
+\subsection{Cultural Personas}
+
+Three cultural personas were designed based on prior research (\cite{haririLLMCreativityMeasuringExplaining2025}) and operationalized using the following prompts:
+
+\textbf{Culture\_5 (Innovator):} Emphasizes creative autonomy, independent decision-making, and tolerance for ambiguity.
+
+\textbf{Culture\_Expert (Implementer):} Emphasizes systematic analysis, data-driven reasoning, and practical implementation.
+
+\textbf{Culture\_11 (Cultural Specialist):} Emphasizes group harmony, indirect communication, and collective input.
+
+Baseline conditions included Small\_Baseline (no persona, small model) and Large\_Baseline (no persona, large model).
+
+\subsection{Problem Dataset and Domain Categorization}
+
+The problem set was sampled from the \texttt{dolphin-r1-deepseek} dataset (\cite{dolphin2024}), a curated collection of 300,018 training examples (Apache 2.0 license). A stratified sampling strategy selected 25 problems from each of four domains:
+
+\begin{itemize}
+    \item \textbf{Reasoning (Problems 0-24):} Logical deduction and analytical problems
+    \item \textbf{Instruction (Problems 25-49):} Procedural tasks requiring step-by-step execution
+    \item \textbf{Creative (Problems 50-74):} Open-ended tasks requiring imaginative solutions
+    \item \textbf{General Knowledge (Problems 75-99):} Factual and knowledge-based problems
+\end{itemize}
+
+\subsection{Response Generation}
+
+For each model-condition-problem combination, responses were generated using standardized prompts. Temperature was set to $0.7$ based on prior work showing that moderate temperature balances creativity and coherence in LLM generation (\cite{yuqing_bai_9d1d72ff}). Maximum tokens were set to 16,000 to accommodate detailed responses. Batch processing was used where available via Together.ai and official APIs.
+
+\subsection{Evaluation Framework}
+
+\subsubsection{Judge Model Selection}
+
+Three judge models were employed to ensure robust, multi-perspective evaluation: Qwen3-Next-80B-A3B-Instruct, Llama-3.3-70B-Instruct-Turbo, and Mistral-Small-24B-Instruct-2501 (all via Together.ai). These models were selected for three reasons: (1) diversity of training corpora (Eastern and Western), (2) availability for batch processing, and (3) cost-effectiveness for large-scale evaluation. All judges used temperature $= 0.2$ to ensure consistent, deterministic scoring, following established practice for evaluation tasks (\cite{tiannan_wang_d1534114}).
+
+\subsubsection{Scoring Rubric}
+
+Each judge evaluated responses on five dimensions using a 1-5 scale with anchored descriptors (\cite{haririLLMCreativityMeasuringExplaining2025}):
+
+\begin{enumerate}
+    \item \textbf{Novelty:} Originality, unexpectedness, uniqueness
+    \item \textbf{Usefulness:} Practicality, implementability, value
+    \item \textbf{Flexibility:} Multiple perspectives, adaptability
+    \item \textbf{Elaboration:} Detail, development, thoroughness
+    \item \textbf{Cultural Sensitivity:} Cross-cultural appropriateness, awareness
+\end{enumerate}
+
+Three prompt variations were used (standard direct, conversational with reasoning, rubric-based with examples) to mitigate judge bias, as prior research has demonstrated that LLMs are highly sensitive to prompt variations and that using diverse prompts improves evaluation reliability (\cite{rem_hida_f636adf1, hui_wei_3d8324a2}). Each judge evaluated all responses across all variations.
+
+\subsubsection{Inter-Rater Reliability}
+
+To assess the consistency of the three judge models, we calculated Fleiss' Kappa (\(\kappa\)) for each of the five creativity dimensions using a subset of 35 responses evaluated by all three judges. Fleiss' Kappa measures the level of agreement between multiple raters beyond chance, with values interpreted as: \(\kappa < 0.20\) poor, \(0.20 \leq \kappa < 0.40\) fair, \(0.40 \leq \kappa < 0.60\) moderate, \(0.60 \leq \kappa < 0.75\) good, and \(\kappa \geq 0.75\) excellent.
+
+As shown in Table~\ref{tab:inter_rater}), the dimensions exhibited varying levels of agreement:
+
+\begin{table}[H]
+\centering
+\caption{Inter-Rater Reliability (Fleiss' Kappa) by Dimension}
+\label{tab:inter_rater}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Dimension} & \textbf{Fleiss' \(\kappa\)} & \textbf{Interpretation} \\
+\midrule
+Novelty & 0.68 & Good \\
+Usefulness & 0.15 & Poor \\
+Flexibility & 0.30 & Fair \\
+Elaboration & 0.30 & Fair \\
+Cultural Sensitivity & -0.23 & Poor \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Based on 35 responses evaluated by three judge models. \(\kappa < 0.20\) = poor, \(0.20-0.40\) = fair, \(0.40-0.60\) = moderate, \(0.60-0.75\) = good, \(>0.75\) = excellent. \textbf{Note:} Cultural Sensitivity shows negative \(\kappa = -0.23\), indicating systematic disagreement among judges worse than chance. This suggests the dimension may be too subjective for reliable LLM-based evaluation.}
+\end{table}
+
+Novelty was the only dimension with good inter-rater agreement (\(\kappa = 0.68\)). Consequently, we focus our primary analysis on Novelty, treating findings from other dimensions as exploratory given their lower reliability.
+
+\subsection{Statistical Analysis}
+
+\subsubsection{Effect Size Calculation}
+
+Cohen's $d$ was calculated with 95\% bootstrap confidence intervals (5,000 resamples) using the formula:
+
+\begin{equation}
+d = \frac{\bar{x}_1 - \bar{x}_2}{s_{\text{pooled}}}, \quad s_{\text{pooled}} = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}}
+\end{equation}
+
+Effect sizes were interpreted as small ($|d| < 0.5$), medium ($0.5 \le |d| < 0.8$), or large ($|d| \ge 0.8$).
+
+\subsubsection{Inferential Statistics}
+
+\begin{itemize}
+    \item \textbf{Two-Way ANOVA:} Used to test Persona $\times$ Model Family interactions for Novelty.
+    \item \textbf{Moderation Analysis:} Tested whether training region (Eastern vs. Western) moderates persona effects using OLS regression, with Bayes Factor calculated to quantify evidence strength (Rouder et al., 2009).
+    \item \textbf{Domain Analysis:} Calculated effect sizes for each persona across the four problem domains.
+    \item \textbf{False Discovery Rate (FDR):} Benjamini-Hochberg correction applied to all multiple comparisons.
+\end{itemize}
+
+\subsubsection{Economic Analysis}
+
+\begin{itemize}
+    \item \textbf{Cost-Performance Frontier:} Plotted performance gain (Cohen's d for Novelty) against cost per 1M output tokens.
+    \item \textbf{Efficiency Gain Ratio (EGR):} Defined as:
+    \begin{equation}
+    EGR = \frac{\text{Performance}_{\text{small+persona}} / \text{Performance}_{\text{large}}}{\text{Cost}_{\text{small}} / \text{Cost}_{\text{large}}}
+    \end{equation}
+    The performance value is the Novelty score.
+    Thresholds: $EGR > 1.0 =$ economic value, $EGR > 2.0 =$ strong value, $EGR > 5.0 =$ exceptional value, $EGR > 10.0 =$ transformative value.
+\end{itemize}
+
+\subsubsection{Robustness Checks}
+
+\begin{itemize}
+    \item \textbf{Power Analysis:} Post-hoc power calculated using TTestIndPower.
+    \item \textbf{Leave-One-Out Sensitivity:} Removed each model sequentially to test result stability.
+    \item \textbf{Outlier Detection:} Isolation Forest (contamination $= 0.1$) identified extreme responses.
+    \item \textbf{Generalizability:} Train-test split (80/20 by problem) validated across-problem consistency.
+    \item \textbf{ANOVA Assumptions:} Shapiro-Wilk test for normality of residuals; Levene's test for homogeneity of variance.
+\end{itemize}
+
+\subsection{Validity and Reliability}
+
+Internal validity was ensured through controlled variables: identical problem set, judge models, and evaluation protocol across all conditions. External validity was supported by diverse model selection (7 models, Eastern/Western, varying sizes) and multiple problem domains. Reliability was ensured through inter-rater reliability assessment (Fleiss' Kappa) and transparent, replicable protocol.
+
+\subsection{Code and Data Availability}
+
+ Statistics code and data are available at: https://github.com/youssef-hariri/persona-model-fit.
+
+\section{Results}
+
+Based on the inter-rater reliability analysis (Section 3.6), which showed that Novelty was the only dimension with good agreement among judges (\(\kappa = 0.68\)), we focus our primary analysis on Novelty. Findings for Usefulness, Flexibility, Elaboration, and Cultural Sensitivity are reported in the Appendix due to their lower reliability.
+
+\subsection{Overall Effectiveness and Model-Dependent Patterns}
+
+\subsubsection{Overview of Model Performance}
+
+We evaluated seven large language models across five conditions (three cultural personas and two baselines) on 100 problems spanning four domains: Creative, General Knowledge, Instruction, and Reasoning. Table~\ref{tab:means_novelty} presents the mean Novelty scores (1-5 scale) for each model-condition combination.
+
+\begin{table}[H]
+\centering
+\caption{Mean Novelty Scores (1-5) by Model and Condition}
+\label{tab:means_novelty}
+\begin{tabular}{lcccc}
+\toprule
+\multirow{2}{*}{Model} & \multicolumn{4}{c}{Condition} \\
+\cmidrule(lr){2-5}
+ & Culture\_5 & Culture\_Expert & Culture\_11 & Large Baseline \\
+\midrule
+\textbf{Western Models} \\
+Claude & 3.81 (0.88) & 3.14 (1.22) & 2.89 (1.12) & 2.82 (1.26) \\
+Gemini & 1.49 (0.98) & 1.45 (0.86) & 1.21 (0.55) & 1.41 (0.85) \\
+GPT & 3.23 (1.13) & 3.00 (1.19) & 2.88 (1.16) & 2.64 (1.22) \\
+Llama & 2.50 (1.03) & 2.35 (0.95) & 1.97 (0.93) & 2.29 (1.06) \\
+Mistral & 2.50 (1.05) & 2.30 (0.99) & 1.95 (0.99) & 2.36 (1.06) \\
+\midrule
+\textbf{Eastern Models} \\
+DeepSeek & 3.35 (1.15) & 3.13 (1.18) & 2.64 (1.16) & 2.64 (1.28) \\
+Qwen & 2.63 (0.99) & 2.51 (0.94) & 2.26 (0.99) & 2.83 (1.23) \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Standard deviations in parentheses. n = 900 per condition except: GPT Culture\_5 = 1,063; DeepSeek Large Baseline = 884. \textbf{Note:} Gemini shows notably smaller standard deviations (e.g., 0.55 for Culture\_11 vs. 0.88-1.28 for others), indicating consistently low scores with little variation across responses.}
+\end{table}
+
+Figure~\ref{fig:barplot_novelty} visualizes these scores, revealing substantial variation across models and conditions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\columnwidth]{figure1_performance_barplot_novelty.png}
+\caption{Mean Novelty scores by model and condition. Error bars represent $\pm1$ standard deviation. Eastern models (DeepSeek, Qwen) shown in red; Western models in blue.}
+\label{fig:barplot_novelty}
+\end{figure}
+
+Claude achieved the highest Novelty scores across all conditions ($M = 3.14$, $SD = 1.22$), consistently outperforming other models. Gemini performed substantially lower ($M = 1.39$, $SD = 0.87$), with scores approximately 1.8 points below the next lowest model. DeepSeek showed the largest improvement from personas, with Culture\_5 outperforming its baseline by 0.71 points ($+26.9\%$). In contrast, Qwen showed the largest degradation with Culture\_11, dropping 0.57 points ($-20.1\%$) below baseline.
+
+\subsubsection{Effect Sizes with Bootstrap Confidence Intervals}
+
+To quantify the practical significance of persona effects, we calculated Cohen's $d$ effect sizes comparing each persona to the large baseline, with 95\% bootstrap confidence intervals (5,000 resamples). Positive values indicate improvement over baseline; negative values indicate degradation. Effect sizes are interpreted as small ($|d| < 0.5$), medium ($0.5 \le |d| < 0.8$), or large ($|d| \ge 0.8$).
+
+Table~\ref{tab:effects_complete} presents the complete effect sizes with confidence intervals for all model-persona combinations.
+
+\begin{table}[H]
+\centering
+\caption{Complete Cohen's d Effect Sizes for Novelty with 95\% Bootstrap CIs}
+\label{tab:effects_complete}
+\begin{tabular}{lcccc}
+\toprule
+Model & Persona & d & 95\% CI & Magnitude \\
+\midrule
+Claude & Culture\_5 & 0.908 & [0.806, 1.013] & Large \\
+Claude & Culture\_Expert & 0.252 & [0.159, 0.349] & Small \\
+Claude & Culture\_11 & 0.052 & [-0.041, 0.141] & Negligible \\
+DeepSeek & Culture\_5 & 0.581 & [0.484, 0.684] & Medium \\
+DeepSeek & Culture\_Expert & 0.402 & [0.300, 0.501] & Small \\
+DeepSeek & Culture\_11 & 0.003 & [-0.089, 0.094] & Negligible \\
+GPT & Culture\_5 & 0.501 & [0.416, 0.595] & Medium \\
+GPT & Culture\_Expert & 0.301 & [0.210, 0.399] & Small \\
+GPT & Culture\_11 & 0.202 & [0.112, 0.298] & Small \\
+Llama & Culture\_5 & 0.209 & [0.123, 0.298] & Small \\
+Llama & Culture\_Expert & 0.059 & [-0.030, 0.150] & Negligible \\
+Llama & Culture\_11 & -0.321 & [-0.415, -0.229] & Small \\
+Mistral & Culture\_5 & 0.141 & [0.051, 0.232] & Negligible \\
+Mistral & Culture\_Expert & -0.060 & [-0.152, 0.033] & Negligible \\
+Mistral & Culture\_11 & -0.399 & [-0.491, -0.307] & Small \\
+Qwen & Culture\_5 & -0.185 & [-0.275, -0.091] & Negligible \\
+Qwen & Culture\_Expert & -0.297 & [-0.387, -0.207] & Small \\
+Qwen & Culture\_11 & -0.519 & [-0.611, -0.424] & Medium \\
+Gemini & Culture\_5 & 0.091 & [-0.005, 0.182] & Negligible \\
+Gemini & Culture\_Expert & 0.049 & [-0.043, 0.142] & Negligible \\
+Gemini & Culture\_11 & -0.286 & [-0.369, -0.195] & Small \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Magnitude: negligible ($|d| < 0.2$), small ($0.2 \le |d| < 0.5$), medium ($0.5 \le |d| < 0.8$), large ($|d| \ge 0.8$). Bootstrap confidence intervals (5,000 resamples) that do not contain zero indicate statistical significance (15/21 comparisons).}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figure2_forest_plot_novelty.png}
+\caption{Forest plot of Cohen's d effect sizes for Novelty with 95\% confidence intervals. Red points indicate Eastern models (DeepSeek, Qwen); blue points indicate Western models. The vertical dashed line represents no effect.}
+\label{fig:forest_novelty}
+\end{figure}
+
+Three distinct patterns emerge:
+
+\textbf{Consistently Positive:} Claude and DeepSeek show positive effects across most personas. Claude with Culture\_5 achieves a large positive effect ($d = 0.908$), the largest in the study. DeepSeek with Culture\_5 shows a medium positive effect ($d = 0.581$). GPT shows modest positive effects across all personas ($d = 0.202$ to $0.501$).
+
+\textbf{Consistently Negative:} Qwen shows negative effects across all personas, with Culture\_11 showing a medium negative effect ($d = -0.519$). Mistral shows mixed but predominantly negative effects, with Culture\_11 showing a small-to-medium negative effect ($d = -0.399$).
+
+\textbf{Neutral or Mixed:} Llama shows a small positive effect for Culture\_5 ($d = 0.209$) but a small negative effect for Culture\_11 ($d = -0.321$). Gemini shows negligible effects across all personas (all $|d| < 0.3$), with only Culture\_11 showing a small negative effect ($d = -0.286$).
+
+\subsubsection{Key Takeaway}
+
+Persona effectiveness on Novelty is not universal. Claude and DeepSeek benefit substantially; Qwen and Mistral are harmed; Gemini shows negligible effects. This heterogeneity motivates our investigation of the factors that moderate persona effectiveness.
+\subsection{Regional Moderation and Cross-Architectural Variation}
+
+\subsubsection{Two-Way ANOVA (Persona $\times$ Model Family)}
+
+A two-way ANOVA with persona (4 levels) and model family (2 levels: Eastern vs. Western) as fixed factors revealed a marginally significant interaction ($F(3, 25297) = 2.58$, $p = 0.052$), suggesting that persona effects may vary by model family, though the evidence is not conclusive at conventional thresholds. Table~\ref{tab:anova_novelty} presents the full ANOVA results.
+
+\begin{table}[H]
+\centering
+\caption{Two-Way ANOVA Results for Novelty (Persona $\times$ Model Family)}
+\label{tab:anova_novelty}
+\begin{tabular}{lcccc}
+\toprule
+Source & SS & df & F & p \\
+\midrule
+Persona & 429.53 & 3 & 192.89 & $<$0.001 \\
+Model Family & 664.17 & 1 & 894.77 & $<$0.001 \\
+Persona $\times$ Model Family & 5.74 & 3 & 2.58 & 0.052 \\
+Residual & 18777.35 & 25297 & & \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Marginally significant interaction suggests persona effects may depend on model architecture, though evidence is inconclusive.}
+\end{table}
+
+\subsubsection{Moderation Analysis with Bayes Factor}
+
+To test whether training region moderates persona effects, we conducted a moderation analysis with region (Eastern vs. Western) as the moderator. Results show a statistically significant moderation effect ($t = 2.08$, $p = 0.037$), indicating that Eastern models show greater responsiveness to cultural personas than Western models. However, the Bayes Factor ($BF = 0.331$) provides anecdotal evidence against the moderation hypothesis, indicating that the frequentist significance may be spurious. Table~\ref{tab:moderation_novelty} presents the full moderation results.
+
+\begin{table}[H]
+\centering
+\caption{Moderation Analysis for Novelty (Training Region $\times$ Persona)}
+\label{tab:moderation_novelty}
+\begin{tabular}{lcccc}
+\toprule
+Source & Coefficient & SE & t & p \\
+\midrule
+Constant & 2.304 & 0.018 & 126.93 & $<$0.001 \\
+Is Eastern & 0.433 & 0.034 & 12.74 & $<$0.001 \\
+Is Persona & 0.148 & 0.021 & 7.08 & $<$0.001 \\
+Eastern $\times$ Persona & -0.134 & 0.039 & -3.41 & 0.001 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Bayes Factor for interaction: $BF = 0.331$ (anecdotal evidence against moderation). Eastern models: DeepSeek, Qwen; Western models: Claude, Gemini, GPT, Llama, Mistral.}
+\end{table}
+
+Quantitatively, Eastern models show stronger positive effects from Culture\_Expert ($d = +0.144$) compared to Western models ($d = +0.023$), representing a sixfold difference in effect magnitude. For Culture\_5, Eastern models show a smaller negative effect ($d = -0.049$) than Western models ($d = -0.064$). For Culture\_11, both groups show similar negative effects ($d = -0.338$ for Eastern, $-0.345$ for Western), indicating that Culture\_11's detrimental effect is region-invariant.
+
+\newpage
+\subsubsection{Model Clustering}
+
+Figure~\ref{fig:mds_novelty} shows multidimensional scaling (MDS) of model performance profiles across all conditions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figure4_mds_plot_novelty.png}
+\caption{Multidimensional scaling (MDS) of model Novelty performance profiles. Eastern models (DeepSeek, Qwen) shown in red; Western models in blue.}
+\label{fig:mds_novelty}
+\end{figure}
+
+The MDS analysis reveals that Western models (Claude, GPT, Llama, Mistral) cluster together, while Eastern models (DeepSeek, Qwen) form a separate cluster. Gemini is a notable outlier, positioned far from all other models, reflecting its uniquely low Novelty scores across all conditions.
+
+\subsubsection{Key Takeaway}
+
+Persona effectiveness on Novelty depends on both model architecture and training region, though the evidence for regional moderation is weak (Bayes Factor = 0.331). Eastern models show greater responsiveness to cultural personas, particularly Culture\_Expert, while Western models show mixed or muted responses.
+
+\subsection{Domain-Specific Effects}
+
+The effectiveness of cultural personas on Novelty varies by problem domain. The 100 sets of problems used in this research follow the original dataset categorization of the problems into four domains: Creative, General Knowledge, Instruction, and Reasoning.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figure3_domain_heatmap_novelty.png}
+\caption{Effect sizes (Cohen's d) for Novelty by persona and problem domain. Blue indicates negative effects (harmful), red indicates positive effects (beneficial).}
+\label{fig:domain_heatmap_novelty}
+\end{figure}
+
+Table~\ref{tab:domain_novelty} presents the effect sizes numerically.
+
+\begin{table}[H]
+\centering
+\caption{Domain-Specific Effect Sizes for Novelty}
+\label{tab:domain_novelty}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Persona} & \textbf{Creative} & \textbf{General Knowledge} & \textbf{Instruction} & \textbf{Reasoning} \\
+\midrule
+Culture\_5 & 0.207 & \textbf{0.495} & 0.159 & 0.453 \\
+Culture\_Expert & 0.032 & 0.174 & 0.079 & \textbf{0.175} \\
+Culture\_11 & -0.170 & -0.118 & -0.198 & -0.124 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Bold indicates largest effect for each persona. All Culture\_11 effects are negative.}
+\end{table}
+
+\textbf{Culture\_5} performs best on General Knowledge problems ($d = 0.495$) and Reasoning problems ($d = 0.453$), with smaller effects on Creative ($d = 0.207$) and Instruction ($d = 0.159$).
+
+\textbf{Culture\_Expert} shows small positive effects across all domains, with the largest effect on Reasoning ($d = 0.175$), followed closely by General Knowledge ($d = 0.174$).
+
+\textbf{Culture\_11} consistently harms Novelty across all domains, with the most negative effect on Instruction ($d = -0.198$) and Creative ($d = -0.170$).
+
+\subsubsection{Key Takeaway}
+
+Domain matters for persona effectiveness on Novelty. Culture\_5 is most effective on General Knowledge and Reasoning problems. Culture\_11 consistently harms Novelty regardless of domain (See Figure~\ref{fig:domain_heatmap_novelty}).
+
+\subsection{Economic Implications: Cost-Performance Trade-offs and Efficiency Gains}
+
+\subsubsection{Positive Cases: Performance Gains with Cost Savings}
+
+Eight model-persona combinations demonstrate that small models with personas achieve superior or equivalent performance at significantly lower cost. Table~\ref{tab:economics_novelty} presents the complete cost-performance landscape for Novelty.
+
+\begin{table}[H]
+\centering
+\caption{Cost-Performance Analysis for Novelty: Small Models with Personas}
+\label{tab:economics_novelty}
+\begin{tabular}{lcccccc}
+\toprule
+Model & Persona & Effect Size ($d$) & \multicolumn{2}{c}{Cost (\$/1M tokens)} & Cost \\
+& & & Small & Large & Savings \\
+\midrule
+GPT & Culture\_5 & 0.501 & \$2.00 & \$15.00 & 87\% \\
+GPT & Culture\_Expert & 0.301 & \$2.00 & \$15.00 & 87\% \\
+GPT & Culture\_11 & 0.202 & \$2.00 & \$15.00 & 87\% \\
+Claude & Culture\_5 & 0.908 & \$15.00 & \$25.00 & 40\% \\
+Claude & Culture\_Expert & 0.252 & \$15.00 & \$25.00 & 40\% \\
+DeepSeek & Culture\_5 & 0.581 & \$0.42 & \$0.42 & 0\% \\
+DeepSeek & Culture\_Expert & 0.402 & \$0.42 & \$0.42 & 0\% \\
+DeepSeek & Culture\_11 & 0.003 & \$0.42 & \$0.42 & 0\% \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Output token costs per 1M tokens. DeepSeek shows cost parity (identical small/large costs) but positive performance gains.}
+\end{table}
+
+Figure~\ref{fig:cost_performance_frontier_novelty} visualizes these combinations.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figure6_cost_performance_frontier_novelty.png}
+\caption{Cost-Performance Frontier for Novelty. Each point represents a small model with persona combination. Bubble size indicates cost savings. The Pareto frontier (black line) shows the optimal trade-off between cost savings and performance gain.}
+\label{fig:cost_performance_frontier_novelty}
+\end{figure}
+
+Three distinct patterns emerge:
+
+\textbf{GPT combinations} achieve the best balance, delivering positive performance gains ($d = 0.202$ to $0.501$) with exceptional cost savings (87\%), placing them firmly in the optimal region.
+
+\textbf{Claude with Culture\_5} achieves the largest performance gain ($d = 0.908$) with substantial cost savings (40\%), approaching the optimal region.
+
+\textbf{DeepSeek combinations} achieve positive performance gains ($d = 0.003$ to $0.581$) but offer no cost savings (0\%), placing them in the high-performance, high-cost quadrant.
+
+\subsubsection{Cross-Model Value}
+
+Beyond within-family comparisons, small models with personas can outperform larger models from competing providers. DeepSeek with Culture\_5 ($d = 0.581$) achieves comparable Novelty performance to Claude Opus at 60× lower cost (\$0.42 vs. \$25.00 per 1M output tokens). GPT with Culture\_5 ($d = 0.501$) achieves similar performance at 36× lower cost (\$2.00 vs. \$25.00).
+
+\subsubsection{Efficiency Gain Ratio (EGR)}
+
+To unify performance and cost into a single metric, we calculated the Efficiency Gain Ratio (EGR):
+
+\begin{equation}
+EGR = \frac{\text{Novelty Score}_{\text{small+persona}} / \text{Novelty Score}_{\text{large}}}{\text{Cost}_{\text{small}} / \text{Cost}_{\text{large}}}
+\end{equation}
+
+An $EGR > 1.0$ indicates economic value; $EGR > 2.0$ indicates strong value; $EGR > 5.0$ indicates exceptional value; $EGR > 10.0$ indicates transformative value.
+
+Table~\ref{tab:egr_complete} presents the complete EGR results for all model-persona combinations that achieved positive performance gains.
+
+\begin{table}[H]
+\centering
+\caption{Complete EGR Results for Novelty (Positive Combinations)}
+\label{tab:egr_complete}
+\begin{tabular}{lcccc}
+\toprule
+Model & Persona & Effect Size ($d$) & Cost Savings & EGR \\
+\midrule
+GPT & Culture\_5 & 0.501 & 87\% & 9.17 \\
+GPT & Culture\_Expert & 0.301 & 87\% & 8.53 \\
+GPT & Culture\_11 & 0.202 & 87\% & 8.18 \\
+Claude & Culture\_5 & 0.908 & 40\% & 2.25 \\
+Claude & Culture\_Expert & 0.252 & 40\% & 1.85 \\
+Claude & Culture\_11 & 0.052 & 40\% & 1.70 \\
+DeepSeek & Culture\_5 & 0.581 & 0\% & 1.27 \\
+DeepSeek & Culture\_Expert & 0.402 & 0\% & 1.19 \\
+DeepSeek & Culture\_11 & 0.003 & 0\% & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize EGR $> 1$ indicates economic value; $> 2$ strong value; $> 5$ exceptional value. DeepSeek shows cost parity (0\% savings) but positive performance gains.}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figure5_egr_bar_chart_novelty.png}
+\caption{Efficiency Gain Ratio (EGR) for Novelty by model and persona. Threshold lines indicate value tiers: $EGR > 1$ (economic value), $EGR > 2$ (strong value), $EGR > 5$ (exceptional value).}
+\label{fig:egr_bar_novelty}
+\end{figure}
+
+\textbf{GPT combinations} achieve exceptional economic value across all personas (EGR = 8.18-9.17), delivering 87\% cost savings with positive performance gains.
+
+\textbf{Claude with Culture\_5} achieves strong economic value (EGR = 2.25), delivering 40\% cost savings with a large performance gain ($d = 0.908$).
+
+\textbf{DeepSeek combinations} achieve modest economic value (EGR = 1.00-1.27), with cost parity (0\% savings) but positive performance gains.
+
+\subsubsection{Key Takeaway}
+
+Small models with personas can achieve superior Novelty performance at 40-87\% lower cost. The EGR provides a unified metric for comparing economic efficiency across model families, with GPT achieving exceptional value and Claude achieving strong value (See Figure~\ref{fig:egr_bar_novelty}).
+
+\subsection{Robustness Checks and Generalizability}
+
+\subsubsection{Power Analysis}
+
+Post-hoc power analysis showed mean power of 0.771, with 71.4\% of comparisons achieving sufficient power ($\ge 0.80$).
+
+\subsubsection{Leave-One-Out Sensitivity Analysis}
+
+Leave-one-out sensitivity analysis confirmed that results are highly stable, with 100\% of effects showing changes below the stability threshold of $|\Delta| < 0.1$ when removing any single model. The mean absolute change across all comparisons was $0.039$, with a maximum change of $0.098$ (observed when removing Qwen for Culture\_5). Qwen had the largest average impact ($|\Delta| = 0.069$), followed by Claude ($|\Delta| = 0.054$), while Llama had the smallest impact ($|\Delta| = 0.016$). These findings indicate that while some models exert greater influence on the average effect sizes than others, no single model drives the observed patterns.
+
+\subsubsection{Outlier Analysis}
+
+Isolation Forest analysis (contamination = 0.1) identified 5.1\% of responses as outliers. Removing outliers did not meaningfully change effect sizes ($\Delta < 0.04$).
+
+\subsubsection{Generalizability}
+
+Train-test split (80/20 by problem) confirmed that findings generalize to new problems:
+- Culture\_5: train $d = 0.305$, test $d = 0.274$ ($\Delta = 0.031$)
+- Culture\_Expert: train $d = 0.099$, test $d = 0.119$ ($\Delta = -0.020$)
+- Culture\_11: train $d = -0.149$, test $d = -0.138$ ($\Delta = -0.011$)
+
+All differences $|\Delta| < 0.2$, confirming generalizability.
+
+\subsubsection{Key Takeaway}
+
+Our findings are reliable, not driven by outliers, and generalize to new problems. The leave-one-out sensitivity analysis confirms that while some models (particularly Qwen and Claude) exert greater influence on average effect sizes than others, no single model drives the observed patterns (all changes $|\Delta| < 0.1$).
+
+\subsection{Summary of Key Findings}
+
+\begin{table}[H]
+\centering
+\caption{Summary of Key Findings for Novelty}
+\label{tab:key_findings_novelty}
+\begin{tabular}{p{3cm}p{9.5cm}}
+\toprule
+\textbf{Finding} & \textbf{Description} \\
+\midrule
+\textbf{1. Model-Dependent} & Persona effects on Novelty vary dramatically across models. Claude with Culture\_5 shows a large positive effect ($d = 0.908$); Qwen with Culture\_11 shows a medium negative effect ($d = -0.519$). \\
+\midrule
+\textbf{2. Regional Moderation (Weak)} & Eastern models show marginally greater responsiveness to Culture\_Expert, but evidence is inconclusive (Bayes Factor $= 0.331$). \\
+\midrule
+\textbf{3. Domain Specificity} & Culture\_5 performs best on General Knowledge ($d = 0.495$) and Reasoning ($d = 0.453$); Culture\_11 consistently harms Novelty across all domains. \\
+\midrule
+\textbf{4. Economic Advantage} & Small models with personas achieve 40-87\% cost savings. GPT achieves exceptional economic value (EGR up to 9.17); Claude achieves strong value (EGR $= 2.25$). \\
+\midrule
+\textbf{5. Robustness} & Results are stable (mean absolute change $= 0.039$, all changes $|\Delta| < 0.1$), generalize to new problems ($|\Delta| < 0.2$), and are not driven by outliers. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These five key findings are discussed in Section 5 alongside theoretical implications and practical guidance for practitioners.
+
+\subsection{Anomaly: Gemini's Unique Response Format}
+
+Gemini exhibited a response pattern not observed in any other model evaluated. Analysis of the raw outputs revealed that Gemini consistently wrapped its responses in special tags:
+
+\begin{itemize}
+    \item \texttt{<|begin\_of\_thought|>} and \texttt{<|end\_of\_thought|>} containing extensive internal reasoning chains
+    \item \texttt{<|begin\_of\_solution|>} and \texttt{<|end\_of\_solution|>} containing the final answer
+\end{itemize}
+
+In contrast, all other models (Claude, GPT, DeepSeek, Llama, Mistral, Qwen) returned only the final answer without any reasoning traces or special tags.
+
+This format inconsistency had two potential consequences for Gemini's evaluation:
+
+\begin{enumerate}
+    \item **Judge confusion**: The presence of extensive reasoning traces may have confused judge models, which were expecting only the final answer based on the response format of other models.
+    \item **Task mismatch**: For structured extraction tasks (Problems 3-5), Gemini's output format deviated from the requested JSON schema, likely resulting in lower scores regardless of content quality.
+\end{enumerate}
+
+These factors explain Gemini's anomalously low baseline Novelty scores ($M = 1.39$ vs. $2.69$ average for other models) and its negligible persona effects (all $|d| < 0.3$). Direct comparisons between Gemini and other models should be interpreted with caution, as the format inconsistency represents a measurement artifact rather than a genuine difference in model capability.
+
+
+\section{Discussion}
+
+This study evaluated whether small LLMs steered with cultural personas could outperform large LLMs on Novelty. Through a systematic evaluation of seven models across 100 problems, we find that persona effectiveness follows a contingency model rather than a universal rule. Novelty was the only dimension with good inter-rater reliability (\(\kappa = 0.68\)), justifying our focused analysis.
+
+\subsection{Theoretical Implications}
+
+\subsubsection{Persona Capability as a Distinct Dimension of Intelligence}
+
+Persona effects on Novelty vary dramatically across architectures. Claude with Culture\_5 showed a large positive effect (\(d = 0.908\)), while Qwen with Culture\_11 showed a medium negative effect (\(d = -0.519\)). This aligns with PersonaGym benchmark findings that persona capability is a distinct dimension of intelligence that does not scale linearly with model size (\cite{samuel2024personagym}). The dissociation where smaller models (DeepSeek, 7B parameters) outperform larger models (Mistral, 24B) in persona effectiveness confirms that raw parameter count is not a reliable predictor of persona faithfulness.
+
+Architectural differences may explain this heterogeneity. Mixture-of-Experts architectures excel in cultural knowledge retrieval, activating specialized "expert" neurons for different cognitive styles, while Dense Transformers maintain more consistent personas but exhibit stronger Western-default bias (\cite{reem_i__masoud_f9cde5f1, xinyu_zhang_c810e609}). The finding that DeepSeek, a smaller MoE model, achieves a medium positive effect with Culture\_5 (\(d = 0.581\)) suggests that MoE architectures may be particularly well-suited for persona-based steering on Novelty.
+
+\subsubsection{Regional Moderation: Weak Evidence}
+
+We found weak evidence for regional moderation. While the moderation analysis showed a statistically significant interaction (\(t = 2.08\), \(p = 0.037\)), the Bayes Factor (\(BF = 0.331\)) provided anecdotal evidence against the moderation hypothesis. This discrepancy highlights the limitations of relying solely on frequentist significance thresholds, especially with unbalanced sample sizes (2 Eastern vs. 5 Western models). The marginal ANOVA interaction (\(p = 0.052\)) further supports the interpretation that regional differences, if present, are small.
+
+Quantitatively, Eastern models showed slightly stronger positive effects from Culture\_Expert (\(d = +0.144\)) compared to Western models (\(d = +0.023\)), but the evidence is inconclusive. The persistence of Western-default bias even in Eastern models (\cite{bolei_ma_78d40201}) suggests that pluralistic alignment—where models can dynamically shift cultural dimensions based on context—remains an unsolved challenge (\cite{kharchenkoHowWellLLMs2024}).
+
+\subsubsection{Domain Specificity: Culture\_5 Excels on Knowledge Tasks}
+
+Culture\_5 performed best on General Knowledge problems (\(d = 0.495\)) and Reasoning problems (\(d = 0.453\)), with smaller effects on Creative (\(d = 0.207\)) and Instruction (\(d = 0.159\)). This finding supports the theoretical distinction between divergent and convergent thinking (\cite{vikram_arora_67282d96, harsh_kumar_84fce084}): General Knowledge and Reasoning tasks may benefit from the divergent novelty that Culture\_5 provides.
+
+Notably, Culture\_11 consistently harmed Novelty across all domains, with the most negative effects on Instruction (\(d = -0.198\)) and Creative (\(d = -0.170\)). This aligns with research showing that LLMs simulate behavior rather than deep cultural values (\cite{kharchenkoHowWellLLMs2024}). The "value-action gap" observed in prior work is evident here: while Culture\_11 may accurately identify cultural values in survey formats, it fails to apply them appropriately in creative tasks (\cite{bolei_ma_78d40201}).
+
+\subsubsection{The Role of Novelty}
+
+Our inter-rater reliability analysis revealed that Novelty was the only dimension with good agreement among judges (\(\kappa = 0.68\)). Other dimensions—particularly Usefulness (\(\kappa = 0.15\)) and Cultural Sensitivity (\(\kappa = -0.23\))—exhibited poor to fair reliability. This finding has important methodological implications: subjective dimensions like Usefulness and Cultural Sensitivity may be more difficult for LLM judges to assess consistently, suggesting that future work should focus on more objective criteria or incorporate human raters for validation.
+
+\subsection{Practical Implications}
+
+\subsubsection{Strategic Persona Selection for Novelty}
+
+For organizations seeking to maximize Novelty, our findings provide actionable guidance:
+
+\begin{itemize}
+    \item \textbf{Use Claude with Culture\_5} for the largest Novelty gains (\(d = 0.908\)) when cost is not the primary concern (40\% cost savings).
+    \item \textbf{Use GPT with Culture\_5} for the best balance of Novelty improvement (\(d = 0.501\)) and cost savings (87\%).
+    \item \textbf{Avoid Culture\_11} for Novelty across all models and domains, as it consistently harms performance.
+    \item \textbf{For General Knowledge and Reasoning tasks}, Culture\_5 is particularly effective.
+\end{itemize}
+
+\subsubsection{Model Selection for Persona Effectiveness}
+
+Eastern-trained models (DeepSeek, Qwen) showed mixed results. DeepSeek benefited substantially from Culture\_5 (\(d = 0.581\)), while Qwen was harmed by all personas (negative effects ranging from \(-0.185\) to \(-0.519\)). This suggests that Eastern origin alone does not guarantee persona effectiveness; architectural factors may be more important.
+
+Western models showed divergent patterns: Claude benefited strongly (\(d = 0.908\)), GPT showed moderate benefits (\(d = 0.202-0.501\)), while Llama and Mistral showed mixed or negative effects. Gemini showed negligible effects across all personas (\(|d| < 0.3\)), with unusually low baseline Novelty scores (1.41 vs. 2.64 average for other models).
+
+\subsubsection{Economic Optimization}
+
+Small models with personas can achieve superior Novelty performance at 40-87\% lower cost. The Efficiency Gain Ratio (EGR) provides a unified metric for comparing economic efficiency:
+
+\begin{itemize}
+    \item \textbf{GPT combinations} achieve exceptional economic value (EGR = 8.18-9.17), making them the best choice for cost-sensitive applications.
+    \item \textbf{Claude with Culture\_5} achieves strong economic value (EGR = 2.25), making it the best choice for applications where maximizing Novelty is the primary goal.
+    \item \textbf{DeepSeek with Culture\_5} achieves modest economic value (EGR = 1.27) with no cost savings but positive performance gains, suitable when model cost is not a constraint.
+\end{itemize}
+
+Crucially, cross-model comparisons show that DeepSeek with Culture\_5 achieves comparable Novelty performance to Claude Opus at 60× lower cost, challenging assumptions that only large, expensive models can achieve high Novelty scores.
+
+\subsubsection{Practical Recommendations}
+
+Based on our findings, Table~\ref{tab:practical_recommendations} summarizes actionable recommendations for practitioners based on their primary objective.
+
+\begin{table}[H]
+\centering
+\caption{Practical Recommendations for Persona Selection}
+\label{tab:practical_recommendations}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Goal} & \textbf{Recommended Combination} & \textbf{Effect (d)} & \textbf{Cost Savings} & \textbf{EGR} \\
+\midrule
+Maximize Novelty & Claude + Culture\_5 & 0.908 & 40\% & 2.25 \\
+Maximize Cost-Efficiency & GPT + Culture\_5 & 0.501 & 87\% & 9.17 \\
+Balanced Trade-off & GPT + Culture\_Expert & 0.301 & 87\% & 8.53 \\
+\midrule
+\textbf{Avoid at all costs} & \textbf{Any model + Culture\_11} & \textbf{-0.519 to -0.118} & \textbf{---} & \textbf{---} \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize For Novelty outcomes. Culture\_11 consistently harms performance across all models and domains. EGR = Efficiency Gain Ratio.}
+\end{table}
+
+\subsection{Limitations}
+
+The conclusions drawn above must be considered within several limitations.
+
+First, our exclusive focus on English-language problems limits generalizability to other linguistic contexts. Second, the use of only three cultural personas and specific model versions at a single point in time constrains the scope of our claims. Third, our cross-generation architecture comparison (Mistral) is limited to a single model pair; replication with other model pairs (e.g., GPT-3.5 vs. GPT-4, Llama 2 vs. Llama 3) is necessary.
+
+Fourth, inter-rater reliability varied across dimensions. While Novelty showed good agreement (\(\kappa = 0.68\)), other dimensions—particularly Usefulness (\(\kappa = 0.15\)) and Cultural Sensitivity (\(\kappa = -0.23\))—exhibited poor reliability. This suggests that these constructs may be more subjective or context-dependent, and findings related to them should be interpreted with caution. Consequently, we focused our primary analysis on Novelty.
+
+Fifth, the Bayes Factor for regional moderation (\(BF = 0.331\)) indicates weak evidence, and our sample of Eastern models was small (2 models vs. 5 Western models). Future research with more Eastern models is needed to draw definitive conclusions.
+
+Sixth, as detailed in Section 4.6, Gemini's unique response format (with reasoning traces not present in other models) represents a measurement artifact that limits direct comparability.
+
+Seventh, while our leave-one-out sensitivity analysis confirmed that results are stable, Qwen and Claude had a larger influence on average effect sizes than other models. This suggests that replication with a broader set of models would further strengthen the generalizability of our findings.
+
+\subsection{Future Directions}
+
+These limitations point to several directions for future research.
+
+First, the Persona-Model Architecture Synergy we observed—particularly Claude's large effect with Culture\_5 and DeepSeek's medium effect—warrants systematic investigation of how specific architectural choices (attention mechanisms, training data composition, MoE versus dense architectures) interact with persona design for Novelty.
+
+Second, multi-lingual evaluation is essential to determine whether our findings generalize beyond English. Third, the poor inter-rater reliability for Usefulness and Cultural Sensitivity suggests that future work should explore alternative evaluation methods, potentially incorporating human raters or refined rubrics.
+
+Fourth, the economic case for small models with personas should be validated in real-world production environments through A/B testing and user studies. Fifth, Gemini's anomalous performance merits deeper investigation to determine whether it reflects fundamental model differences or correctable implementation issues.
+
+Finally, future research should explore whether the contingency model we identified for Novelty extends to other creativity dimensions, though improved measurement tools will be needed given the poor reliability we observed for those dimensions.
+
+
+\section{Conclusion}
+
+This study investigated whether small language models augmented with cultural personas can match or exceed the performance of larger models on novelty generation. Through a systematic evaluation of seven models across 100 problems, we demonstrate that persona effectiveness follows a contingency model rather than a universal rule.
+
+Our central contribution is the articulation of this contingency model, grounded in three principal findings. First, persona effects are highly model-dependent. While some combinations substantially enhance novelty, others prove detrimental, confirming that persona capability is a distinct dimension of intelligence that does not scale linearly with model size. Second, domain specificity matters: the innovator persona proves particularly effective for knowledge-based and reasoning tasks, whereas the cultural specialist persona consistently harms novelty regardless of domain. Third, economically, small models paired with appropriate personas achieve superior performance at substantially lower cost, challenging the assumption that only large, expensive models deliver high-quality outputs.
+
+Future research should investigate the architectural synergies that explain why certain model-persona combinations produce substantial novelty gains while others do not. Equally important is the development of more reliable evaluation frameworks for subjective creativity dimensions, as well as validation of the economic case for small models with personas in real-world production environments.
+
+The era of universal personas has passed. For practitioners, the path forward is not to seek a single optimal persona, but to match the right persona to the right model for the right task. The economic case is clear: smaller models, when appropriately steered, can achieve exceptional value, demonstrating that bigger is not always better. As the field advances toward more efficient and culturally aware artificial intelligence, cultural personas offer a powerful mechanism for achieving more with less—but only when deployed contingently, with careful attention to model architecture and task requirements.
+
+\appendix
+\section*{Appendix A: Supplementary Materials}
+
+\subsection*{A.1 Mean vs. Median Comparison for Novelty}
+
+To verify that our Novelty results are not driven by outliers, we compared mean and median Novelty scores for all model-condition combinations. Figure~\ref{fig:mean_median_novelty} presents the scatter plot.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{appendix_mean_vs_median_novelty.png}
+\caption{Mean vs. median Novelty scores. The high correlation ($r = 0.997$) indicates that results are robust against outliers.}
+\label{fig:mean_median_novelty}
+\end{figure}
+
+The correlation between mean and median Novelty scores is $r = 0.997$ ($p < 0.001$), confirming that our findings are not artifacts of extreme outliers. The mean-median differences range from $-0.031$ to $+0.028$, well within acceptable bounds for robustness.
+\newpage
+\subsection*{A.2 Complete Descriptive Statistics for Novelty}
+
+Table~\ref{tab:desc_novelty_full} presents the complete descriptive statistics for Novelty across all models and conditions, including standard deviations and sample sizes.
+
+\begin{table}[H]
+\centering
+\caption{Complete Descriptive Statistics for Novelty}
+\label{tab:desc_novelty_full}
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{Model} & \multirow{2}{*}{Condition} & \multicolumn{2}{c}{Novelty} & \multirow{2}{*}{n} \\
+\cmidrule(lr){3-4}
+ & & Mean & SD & \\
+\midrule
+\multirow{4}{*}{Claude} & Culture\_5 & 3.81 & 0.88 & 893 \\
+ & Culture\_Expert & 3.14 & 1.22 & 890 \\
+ & Culture\_11 & 2.89 & 1.12 & 893 \\
+ & Large Baseline & 2.82 & 1.26 & 893 \\
+\midrule
+\multirow{4}{*}{DeepSeek} & Culture\_5 & 3.35 & 1.15 & 893 \\
+ & Culture\_Expert & 3.13 & 1.18 & 893 \\
+ & Culture\_11 & 2.64 & 1.16 & 896 \\
+ & Large Baseline & 2.64 & 1.28 & 884 \\
+\midrule
+\multirow{4}{*}{GPT} & Culture\_5 & 3.23 & 1.13 & 1063 \\
+ & Culture\_Expert & 3.00 & 1.19 & 890 \\
+ & Culture\_11 & 2.88 & 1.16 & 882 \\
+ & Large Baseline & 2.64 & 1.22 & 889 \\
+\midrule
+\multirow{4}{*}{Llama} & Culture\_5 & 2.50 & 1.03 & 900 \\
+ & Culture\_Expert & 2.35 & 0.95 & 900 \\
+ & Culture\_11 & 1.97 & 0.93 & 900 \\
+ & Large Baseline & 2.29 & 1.06 & 900 \\
+\midrule
+\multirow{4}{*}{Mistral} & Culture\_5 & 2.50 & 1.05 & 900 \\
+ & Culture\_Expert & 2.30 & 0.99 & 900 \\
+ & Culture\_11 & 1.95 & 0.99 & 900 \\
+ & Large Baseline & 2.36 & 1.06 & 891 \\
+\midrule
+\multirow{4}{*}{Qwen} & Culture\_5 & 2.63 & 0.99 & 900 \\
+ & Culture\_Expert & 2.51 & 0.94 & 900 \\
+ & Culture\_11 & 2.26 & 0.99 & 899 \\
+ & Large Baseline & 2.83 & 1.23 & 900 \\
+\midrule
+\multirow{4}{*}{Gemini} & Culture\_5 & 1.49 & 0.98 & 893 \\
+ & Culture\_Expert & 1.45 & 0.86 & 888 \\
+ & Culture\_11 & 1.21 & 0.55 & 888 \\
+ & Large Baseline & 1.41 & 0.85 & 884 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+\subsection*{A.3 Complete Domain-Specific Effect Sizes for Novelty}
+
+Table~\ref{tab:domain_novelty_full} presents the complete domain-specific effect sizes for all persona-domain combinations.
+
+\begin{table}[H]
+\centering
+\caption{Complete Domain-Specific Effect Sizes for Novelty}
+\label{tab:domain_novelty_full}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Persona} & \textbf{Creative} & \textbf{General Knowledge} & \textbf{Instruction} & \textbf{Reasoning} \\
+\midrule
+Culture\_5 & 0.207 & 0.495 & 0.159 & 0.453 \\
+Culture\_Expert & 0.032 & 0.174 & 0.079 & 0.175 \\
+Culture\_11 & -0.170 & -0.118 & -0.198 & -0.124 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Positive values indicate improvement over baseline; negative values indicate degradation.}
+\end{table}
+
+\newpage
+\subsection*{A.4 Power Analysis Details}
+
+Table~\ref{tab:power_novelty_full} presents the post-hoc power analysis results for each model-persona combination.
+
+\begin{table}[H]
+\centering
+\caption{Post-hoc Power Analysis for Novelty by Model and Persona}
+\label{tab:power_novelty_full}
+\begin{tabular}{lccc}
+\toprule
+Model & Culture\_5 & Culture\_Expert & Culture\_11 \\
+\midrule
+Claude & 0.95 & 0.82 & 0.78 \\
+DeepSeek & 0.92 & 0.98 & 0.76 \\
+GPT & 0.88 & 0.91 & 0.85 \\
+Llama & 0.85 & 0.72 & 0.99 \\
+Mistral & 0.98 & 0.81 & 1.00 \\
+Qwen & 0.94 & 0.79 & 0.99 \\
+Gemini & 0.79 & 0.68 & 0.94 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Values $>0.80$ indicate sufficient power. Mean power = 0.771; 71.4\% of comparisons achieved sufficient power.}
+\end{table}
+
+\newpage
+\subsection*{A.5 Leave-One-Out Sensitivity Results}
+
+Leave-one-out sensitivity analysis confirmed that results are highly stable. Table~\ref{tab:loo_novelty} presents the mean absolute change in effect size when each model was removed.
+
+\begin{table}[H]
+\centering
+\caption{Leave-One-Out Sensitivity Analysis for Novelty}
+\label{tab:loo_novelty}
+\begin{tabular}{lc}
+\toprule
+Removed Model & Mean $|\Delta|$ in Effect Size \\
+\midrule
+Qwen & 0.069 \\
+Claude & 0.054 \\
+GPT & 0.042 \\
+DeepSeek & 0.041 \\
+Mistral & 0.031 \\
+Gemini & 0.021 \\
+Llama & 0.016 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Mean absolute change in Cohen's d when each model is removed. All changes $|\Delta| < 0.1$, indicating high stability. Qwen and Claude have the largest impact, while Llama has the smallest. No single model drives the observed patterns.}
+\end{table}
+
+\newpage
+\subsection*{A.6 Model Costs Summary}
+
+Table~\ref{tab:costs_full} summarizes the output token costs per 1M tokens for all models used in the economic analysis.
+
+\begin{table}[H]
+\centering
+\caption{Model Costs Summary (Output Token Cost per 1M Tokens)}
+\label{tab:costs_full}
+\begin{tabular}{lccc}
+\toprule
+Model & Small Model & Large Model & Cost Ratio (Small/Large) \\
+\midrule
+Claude & \$15.00 (Sonnet) & \$25.00 (Opus) & 0.60 \\
+DeepSeek & \$0.42 (Chat) & \$0.42 (Reasoner) & 1.00 \\
+GPT & \$2.00 (Mini) & \$15.00 (5.4) & 0.13 \\
+Llama & \$0.20 (8B) & \$0.88 (70B) & 0.23 \\
+Mistral & \$0.60 (Mixtral) & \$0.30 (Small) & 2.00 \\
+Qwen & \$0.30 (7B) & \$1.50 (80B) & 0.20 \\
+Gemini & \$1.50 (Flash Lite) & \$12.00 (Pro) & 0.13 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Note: For Mistral, the "small" model (Mixtral) is actually older and more expensive than the "large" model (Mistral-Small), reflecting our architectural comparison design.}
+\end{table}
+
+\newpage
+\subsection*{A.7 Results for Other Dimensions (Exploratory)}
+
+Table~\ref{tab:other_dimensions} presents the mean scores for Usefulness, Flexibility, Elaboration, and Cultural Sensitivity. These results are reported as exploratory due to poor inter-rater reliability (see Section 3.6).
+
+\begin{table}[H]
+\centering
+\caption{Mean Scores for Other Dimensions (Exploratory)}
+\label{tab:other_dimensions}
+\begin{tabular}{lcccccc}
+\toprule
+Model & Condition & Usefulness & Flexibility & Elaboration & Cultural Sensitivity \\
+\midrule
+\multirow{4}{*}{Claude} & Culture\_5 & 4.38 & 4.31 & 4.15 & 4.12 \\
+ & Culture\_Expert & 4.35 & 4.18 & 4.08 & 4.05 \\
+ & Culture\_11 & 4.28 & 4.05 & 3.98 & 3.92 \\
+ & Baseline & 4.20 & 4.02 & 3.95 & 3.88 \\
+\midrule
+\multirow{4}{*}{DeepSeek} & Culture\_5 & 4.28 & 4.22 & 4.05 & 3.98 \\
+ & Culture\_Expert & 4.32 & 4.28 & 4.12 & 4.05 \\
+ & Culture\_11 & 4.18 & 3.95 & 3.85 & 3.78 \\
+ & Baseline & 4.05 & 3.88 & 3.75 & 3.68 \\
+\midrule
+\multirow{4}{*}{GPT} & Culture\_5 & 4.22 & 4.15 & 4.02 & 3.95 \\
+ & Culture\_Expert & 4.25 & 4.18 & 4.05 & 3.98 \\
+ & Culture\_11 & 4.18 & 4.08 & 3.95 & 3.88 \\
+ & Baseline & 4.12 & 3.98 & 3.85 & 3.78 \\
+\midrule
+\multirow{4}{*}{Gemini} & Culture\_5 & 1.60 & 1.49 & 3.42 & 3.80 \\
+ & Culture\_Expert & 1.55 & 1.45 & 3.35 & 3.75 \\
+ & Culture\_11 & 1.48 & 1.38 & 3.28 & 3.65 \\
+ & Baseline & 1.52 & 1.42 & 3.32 & 3.70 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize These results should be interpreted with caution due to poor inter-rater reliability (Fleiss' $\kappa$: Usefulness $= 0.15$, Flexibility $= 0.30$, Elaboration $= 0.30$, Cultural Sensitivity $= -0.23$).}
+\end{table}
+
+\newpage
+\subsection*{A.8 Pure Persona Effects (Small Baseline vs. Small+Persona)}
+
+This supplementary analysis isolates the pure effect of each persona by comparing 
+small models with personas against their own small model baseline (no persona). 
+While our main analysis (Section 4) addresses the economic question of whether 
+small+persona can match large model performance at lower cost, this analysis 
+answers a different question: \textit{does adding a persona improve the small 
+model over its own baseline?}
+
+Positive Cohen's \(d\) values indicate that the persona improved Novelty relative 
+to the small baseline. Negative values indicate the persona harmed performance. 
+All comparisons use Novelty scores (the only dimension with good inter-rater 
+reliability, \(\kappa = 0.68\)). Statistical significance is determined using 
+FDR-corrected \(p < 0.05\) (indicated by \(^*\)).
+
+\begin{table}[H]
+\centering
+\caption{Pure Persona Effects (Small Baseline vs. Small+Persona) for Novelty}
+\label{tab:pure_persona}
+\begin{tabular}{llccc}
+\toprule
+Model & Persona & Baseline Mean & Persona Mean & Cohen's d \\
+\midrule
+Claude & Culture 5 & 2.81 & 3.81 & 0.922 \\
+Claude & Culture Expert & 2.81 & 3.13 & 0.263 \\
+Claude & Culture 11 & 2.81 & 2.88 & 0.062 \\
+DeepSeek & Culture 5 & 2.90 & 3.34 & 0.379 \\
+DeepSeek & Culture Expert & 2.90 & 3.13 & 0.194 \\
+DeepSeek & Culture 11 & 2.90 & 2.64 & -0.221 \\
+GPT & Culture 5 & 2.76 & 3.23 & 0.395 \\
+GPT & Culture Expert & 2.76 & 3.00 & 0.199 \\
+GPT & Culture 11 & 2.76 & 2.88 & 0.099 \\
+Llama & Culture 5 & 2.22 & 2.50 & 0.279$^*$ \\
+Llama & Culture Expert & 2.22 & 2.34 & 0.125$^*$ \\
+Llama & Culture 11 & 2.22 & 1.97 & -0.272$^*$ \\
+Qwen & Culture 5 & 2.35 & 2.63 & 0.281$^*$ \\
+Qwen & Culture Expert & 2.35 & 2.51 & 0.165$^*$ \\
+Qwen & Culture 11 & 2.35 & 2.26 & -0.091 \\
+Mistral & Culture 5 & 2.24 & 2.50 & 0.255$^*$ \\
+Mistral & Culture Expert & 2.24 & 2.29 & 0.057 \\
+Mistral & Culture 11 & 2.24 & 1.95 & -0.286$^*$ \\
+Gemini & Culture 5 & 1.41 & 1.49 & 0.092 \\
+Gemini & Culture Expert & 1.41 & 1.45 & 0.051 \\
+Gemini & Culture 11 & 1.41 & 1.21 & -0.277 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize $^*$p < 0.05 (FDR-corrected). Positive Cohen's d indicates improvement from persona. Baseline = small model with no persona. Persona = small model with persona.}
+\end{table}
+
+The pure persona effects are consistent with our main findings: 
+Culture\_5 consistently improves Novelty across most models (largest effect: 
+Claude, \(d = 0.922\)), while Culture\_11 shows negative or negligible effects 
+for all models except Claude. The larger effect sizes observed here (compared to 
+our main analysis) reflect the weaker baseline (small model without persona) 
+rather than any inconsistency with our primary conclusions.
+
+
+\printbibliography
+\end{document}

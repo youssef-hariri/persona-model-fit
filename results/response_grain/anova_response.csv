@@ -1,0 +1,5 @@
+,sum_sq,df,F,PR(>F)
+"C(persona4, Sum)",112.3067,3.0,35.7503,0.0
+"C(region, Sum)",64.4127,1.0,61.513,0.0
+"C(persona4, Sum):C(region, Sum)",2.7978,3.0,0.8906,0.4452
+Residual,2942.4604,2810.0,,

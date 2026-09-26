@@ -1,0 +1,265 @@
+R2 rows 31605 merged-response rows split: 359 responses: 3516
+R3 DESCRIPTIVES response-level (means / SDs / n responses)
+condition  Culture_5  Culture_Expert  Culture_11  Large_Baseline
+family                                                          
+Claude          3.81            3.14        2.89            2.84
+DeepSeek        3.35            3.14        2.64            2.64
+GPT             3.22            3.00        2.88            2.64
+Gemini          1.49            1.45        1.21            1.41
+Llama           2.50            2.34        1.97            2.29
+Mistral         2.50            2.29        1.95            2.36
+Qwen            2.63            2.51        2.26            2.83
+condition  Culture_5  Culture_Expert  Culture_11  Large_Baseline
+family                                                          
+Claude          0.64            1.06        0.95            1.09
+DeepSeek        1.02            1.03        1.00            1.13
+GPT             0.99            1.04        1.02            1.06
+Gemini          0.73            0.56        0.34            0.55
+Llama           0.74            0.68        0.68            0.86
+Mistral         0.74            0.74        0.80            0.85
+Qwen            0.71            0.69        0.72            1.05
+condition  Culture_5  Culture_Expert  Culture_11  Large_Baseline
+family                                                          
+Claude           100             100         100             100
+DeepSeek         100             100         100             100
+GPT              120             100         100             100
+Gemini           100             100         100              99
+Llama            100             100         100             100
+Mistral          100             100         100              99
+Qwen             100             100         100             100
+R3b DESCRIPTIVES rating-level (paper grain)
+condition  Culture_5  Culture_Expert  Culture_11  Large_Baseline
+family                                                          
+Claude          3.81            3.13        2.88            2.82
+DeepSeek        3.34            3.13        2.64            2.64
+GPT             3.23            3.00        2.88            2.64
+Gemini          1.49            1.45        1.21            1.41
+Llama           2.50            2.34        1.97            2.29
+Mistral         2.50            2.29        1.95            2.36
+Qwen            2.63            2.51        2.26            2.83
+condition  Culture_5  Culture_Expert  Culture_11  Large_Baseline
+family                                                          
+Claude           900             899         900             900
+DeepSeek         899             900         900             899
+GPT             1073             893         892             893
+Gemini           900             900         900             891
+Llama            900             900         900             900
+Mistral          900             900         900             891
+Qwen             900             900         900             900
+R4 EFFECT SIZES rating-level (validate vs paper Table 3)
+   model        persona      d  ci_lo  ci_hi   n1  n2   sig
+  Claude      Culture_5  0.908  0.809  1.013  893 893  True
+  Claude Culture_Expert  0.252  0.159  0.350  890 893  True
+  Claude     Culture_11  0.052 -0.040  0.148  893 893 False
+DeepSeek      Culture_5  0.581  0.479  0.682  893 884  True
+DeepSeek Culture_Expert  0.402  0.305  0.501  893 884  True
+DeepSeek     Culture_11  0.003 -0.090  0.094  896 884 False
+     GPT      Culture_5  0.501  0.408  0.596 1063 889  True
+     GPT Culture_Expert  0.301  0.206  0.398  890 889  True
+     GPT     Culture_11  0.202  0.109  0.298  882 889  True
+   Llama      Culture_5  0.209  0.114  0.302  900 900  True
+   Llama Culture_Expert  0.059 -0.036  0.150  900 900 False
+   Llama     Culture_11 -0.321 -0.416 -0.230  900 900  True
+ Mistral      Culture_5  0.141  0.047  0.232  900 891  True
+ Mistral Culture_Expert -0.060 -0.154  0.033  900 891 False
+ Mistral     Culture_11 -0.399 -0.496 -0.304  900 891  True
+    Qwen      Culture_5 -0.185 -0.278 -0.093  900 900  True
+    Qwen Culture_Expert -0.297 -0.391 -0.206  900 900  True
+    Qwen     Culture_11 -0.519 -0.614 -0.424  899 900  True
+  Gemini      Culture_5  0.091 -0.002  0.183  893 884 False
+  Gemini Culture_Expert  0.049 -0.043  0.144  888 884 False
+  Gemini     Culture_11 -0.286 -0.373 -0.197  888 884  True
+R4b EFFECT SIZES response-level (corrected)
+   model        persona      d  ci_lo  ci_hi  n1  n2   sig
+  Claude      Culture_5  1.087  0.800  1.417 100 100  True
+  Claude Culture_Expert  0.281  0.012  0.574 100 100  True
+  Claude     Culture_11  0.056 -0.213  0.337 100 100 False
+DeepSeek      Culture_5  0.664  0.384  0.993 100 100  True
+DeepSeek Culture_Expert  0.464  0.186  0.770 100 100  True
+DeepSeek     Culture_11  0.006 -0.264  0.285 100 100 False
+     GPT      Culture_5  0.570  0.308  0.868 120 100  True
+     GPT Culture_Expert  0.344  0.070  0.647 100 100  True
+     GPT     Culture_11  0.231 -0.043  0.521 100 100 False
+   Llama      Culture_5  0.271 -0.006  0.561 100 100 False
+   Llama Culture_Expert  0.076 -0.196  0.363 100 100 False
+   Llama     Culture_11 -0.412 -0.693 -0.131 100 100  True
+ Mistral      Culture_5  0.186 -0.094  0.461 100  99 False
+ Mistral Culture_Expert -0.077 -0.367  0.203 100  99 False
+ Mistral     Culture_11 -0.496 -0.816 -0.215 100  99  True
+    Qwen      Culture_5 -0.229 -0.504  0.040 100 100 False
+    Qwen Culture_Expert -0.365 -0.642 -0.097 100 100  True
+    Qwen     Culture_11 -0.638 -0.925 -0.366 100 100  True
+  Gemini      Culture_5  0.131 -0.154  0.396 100  99 False
+  Gemini Culture_Expert  0.076 -0.205  0.355 100  99 False
+  Gemini     Culture_11 -0.443 -0.701 -0.182 100  99  True
+R5 TWO-WAY ANOVA persona(4) x region(2)
+  [rating] n=25202
+                                     sum_sq       df         F  PR(>F)
+C(persona4, Sum)                  1008.6495      3.0  234.9555  0.0000
+C(region, Sum)                     575.1981      1.0  401.9610  0.0000
+C(persona4, Sum):C(region, Sum)     26.0115      3.0    6.0591  0.0004
+Residual                         36052.1028  25194.0       NaN     NaN
+  [response] n=2818
+                                    sum_sq      df        F  PR(>F)
+C(persona4, Sum)                  112.3067     3.0  35.7503  0.0000
+C(region, Sum)                     64.4127     1.0  61.5130  0.0000
+C(persona4, Sum):C(region, Sum)     2.7978     3.0   0.8906  0.4452
+Residual                         2942.4604  2810.0      NaN     NaN
+R6 MODERATION SPECS
+  [rating] binary persona-vs-LB
+                       coef        t       p
+Intercept            2.3042  126.927  0.0000
+IsEastern            0.4326   12.740  0.0000
+IsPersona            0.1480    7.075  0.0000
+IsEastern:IsPersona -0.1337   -3.413  0.0006
+  [rating] persona C() x East (ref Culture_11)
+                                                                     coef        t       p
+Intercept                                                          2.1748  122.134  0.0000
+C(condition, Treatment('Culture_11'))[T.Culture_5]                 0.5504   22.080  0.0000
+C(condition, Treatment('Culture_11'))[T.Culture_Expert]            0.2707   10.751  0.0000
+IsEastern                                                          0.2743    8.249  0.0000
+C(condition, Treatment('Culture_11'))[T.Culture_5]:IsEastern      -0.0140   -0.298  0.7659
+C(condition, Treatment('Culture_11'))[T.Culture_Expert]:IsEastern  0.0996    2.118  0.0342
+  [rating] same, HC3 robust SE: interaction t/p:
+    C(condition, Treatment('Culture_11'))[T.Culture_5]:IsEastern -0.31 0.7569
+    C(condition, Treatment('Culture_11'))[T.Culture_Expert]:IsEastern 2.236 0.0254
+  [response] binary persona-vs-LB
+                       coef       t       p
+Intercept            2.3073  49.462  0.0000
+IsEastern            0.4283   4.914  0.0000
+IsPersona            0.1466   2.728  0.0064
+IsEastern:IsPersona -0.1272  -1.265  0.2059
+  [response] persona C() x East (ref Culture_11)
+                                                                     coef       t       p
+Intercept                                                          2.1784  47.914  0.0000
+C(condition, Treatment('Culture_11'))[T.Culture_5]                 0.5480   8.606  0.0000
+C(condition, Treatment('Culture_11'))[T.Culture_Expert]            0.2678   4.166  0.0000
+IsEastern                                                          0.2730   3.209  0.0014
+C(condition, Treatment('Culture_11'))[T.Culture_5]:IsEastern      -0.0098  -0.082  0.9350
+C(condition, Treatment('Culture_11'))[T.Culture_Expert]:IsEastern  0.1049   0.872  0.3834
+  [response] same, HC3 robust SE: interaction t/p:
+    C(condition, Treatment('Culture_11'))[T.Culture_5]:IsEastern -0.086 0.9314
+    C(condition, Treatment('Culture_11'))[T.Culture_Expert]:IsEastern 0.936 0.3495
+R7 FLEISS KAPPA
+           dimension  kappa_9raters_all  kappa_9raters_first35  kappa_3judgerounds_all
+             Novelty              0.326                  0.293                   0.404
+          Usefulness              0.321                 -0.039                   0.257
+         Flexibility              0.316                  0.238                   0.312
+         Elaboration              0.311                  0.341                   0.295
+Cultural Sensitivity              0.171                  0.004                   0.069
+R8 POST-HOC POWER
+  [rating] mean power 0.771 frac>=.8 0.714
+  [response] mean power 0.544 frac>=.8 0.381
+R9 PURE PERSONA EFFECTS vs Small_Baseline + BH-FDR
+  [rating]
+   model        persona  base_mean  persona_mean      d            p  p_fdr star
+  Claude      Culture_5       2.81          3.81  0.922 2.434889e-76 0.0000    *
+  Claude Culture_Expert       2.81          3.13  0.263 3.252972e-08 0.0000    *
+  Claude     Culture_11       2.81          2.88  0.062 1.893135e-01 0.2092     
+DeepSeek      Culture_5       2.90          3.34  0.379 3.193696e-15 0.0000    *
+DeepSeek Culture_Expert       2.90          3.13  0.194 4.624876e-05 0.0001    *
+DeepSeek     Culture_11       2.90          2.64 -0.221 3.666025e-06 0.0000    *
+     GPT      Culture_5       2.76          3.23  0.395 1.556446e-17 0.0000    *
+     GPT Culture_Expert       2.76          3.00  0.199 2.892826e-05 0.0001    *
+     GPT     Culture_11       2.76          2.88  0.099 3.671371e-02 0.0482    *
+   Llama      Culture_5       2.22          2.50  0.279 4.003199e-09 0.0000    *
+   Llama Culture_Expert       2.22          2.34  0.125 8.155125e-03 0.0114    *
+   Llama     Culture_11       2.22          1.97 -0.272 8.918339e-09 0.0000    *
+ Mistral      Culture_5       2.24          2.50  0.255 7.111526e-08 0.0000    *
+ Mistral Culture_Expert       2.24          2.29  0.057 2.291575e-01 0.2406     
+ Mistral     Culture_11       2.24          1.95 -0.286 1.684777e-09 0.0000    *
+    Qwen      Culture_5       2.35          2.63  0.281 3.112298e-09 0.0000    *
+    Qwen Culture_Expert       2.35          2.51  0.165 4.675365e-04 0.0007    *
+    Qwen     Culture_11       2.35          2.26 -0.091 5.327755e-02 0.0622     
+  Gemini      Culture_5       1.41          1.49  0.092 5.174313e-02 0.0622     
+  Gemini Culture_Expert       1.41          1.45  0.051 2.793242e-01 0.2793     
+  Gemini     Culture_11       1.41          1.21 -0.277 7.443253e-09 0.0000    *
+  [response]
+   model        persona  base_mean  persona_mean      d            p  p_fdr star
+  Claude      Culture_5       2.82          3.81  1.101 8.162299e-13 0.0000    *
+  Claude Culture_Expert       2.82          3.14  0.296 3.771930e-02 0.0792     
+  Claude     Culture_11       2.82          2.89  0.073 6.041012e-01 0.6041     
+DeepSeek      Culture_5       2.91          3.35  0.432 2.704110e-03 0.0189    *
+DeepSeek Culture_Expert       2.91          3.14  0.224 1.164571e-01 0.1792     
+DeepSeek     Culture_11       2.91          2.64 -0.258 7.112653e-02 0.1358     
+     GPT      Culture_5       2.76          3.22  0.448 1.199657e-03 0.0126    *
+     GPT Culture_Expert       2.76          3.00  0.228 1.082123e-01 0.1792     
+     GPT     Culture_11       2.76          2.88  0.115 4.164722e-01 0.4859     
+   Llama      Culture_5       2.22          2.50  0.386 6.886803e-03 0.0265    *
+   Llama Culture_Expert       2.22          2.34  0.173 2.218604e-01 0.3106     
+   Llama     Culture_11       2.22          1.97 -0.374 8.846928e-03 0.0265    *
+ Mistral      Culture_5       2.24          2.50  0.345 1.544790e-02 0.0360    *
+ Mistral Culture_Expert       2.24          2.29  0.075 5.967820e-01 0.6041     
+ Mistral     Culture_11       2.24          1.95 -0.363 1.110078e-02 0.0291    *
+    Qwen      Culture_5       2.35          2.63  0.379 8.053145e-03 0.0265    *
+    Qwen Culture_Expert       2.35          2.51  0.221 1.194489e-01 0.1792     
+    Qwen     Culture_11       2.35          2.26 -0.120 3.960775e-01 0.4859     
+  Gemini      Culture_5       1.41          1.49  0.130 3.615609e-01 0.4745     
+  Gemini Culture_Expert       1.41          1.45  0.077 5.863286e-01 0.6041     
+  Gemini     Culture_11       1.41          1.21 -0.396 6.010745e-03 0.0265    *
+R10 DOMAIN EFFECT SIZES (pooled models)
+       persona           domain  d_response  d_rating  d_response_noGemini
+     Culture_5         Creative       0.233     0.207                0.287
+     Culture_5 GeneralKnowledge       0.628     0.495                0.732
+     Culture_5      Instruction       0.185     0.159                0.240
+     Culture_5        Reasoning       0.545     0.453                0.647
+Culture_Expert         Creative       0.036     0.032                0.035
+Culture_Expert GeneralKnowledge       0.223     0.174                0.253
+Culture_Expert      Instruction       0.092     0.079                0.126
+Culture_Expert        Reasoning       0.210     0.175                0.247
+    Culture_11         Creative      -0.196    -0.170               -0.209
+    Culture_11 GeneralKnowledge      -0.154    -0.118               -0.139
+    Culture_11      Instruction      -0.229    -0.198               -0.244
+    Culture_11        Reasoning      -0.149    -0.124               -0.151
+R11 EGR + INCLUSION
+   model        persona  d_resp  ci_sig  cost_savings  EGR  mean_resp  mean_rating
+  Claude      Culture_5   1.087    True         0.400 2.24       3.81         3.81
+  Claude Culture_Expert   0.281    True         0.400 1.84       3.14         3.13
+  Claude     Culture_11   0.056   False         0.400 1.70       2.89         2.88
+DeepSeek      Culture_5   0.664    True         0.000 1.27       3.35         3.34
+DeepSeek Culture_Expert   0.464    True         0.000 1.19       3.14         3.13
+DeepSeek     Culture_11   0.006   False         0.000 1.00       2.64         2.64
+     GPT      Culture_5   0.570    True         0.867 9.15       3.22         3.23
+     GPT Culture_Expert   0.344    True         0.867 8.53       3.00         3.00
+     GPT     Culture_11   0.231   False         0.867 8.18       2.88         2.88
+   Llama      Culture_5   0.271   False         0.773 4.82       2.50         2.50
+   Llama Culture_Expert   0.076   False         0.773 4.51       2.34         2.34
+   Llama     Culture_11  -0.412    True         0.773 3.78       1.97         1.97
+ Mistral      Culture_5   0.186   False        -1.000 0.53       2.50         2.50
+ Mistral Culture_Expert  -0.077   False        -1.000 0.49       2.29         2.29
+ Mistral     Culture_11  -0.496    True        -1.000 0.41       1.95         1.95
+    Qwen      Culture_5  -0.229   False         0.800 4.64       2.63         2.63
+    Qwen Culture_Expert  -0.365    True         0.800 4.43       2.51         2.51
+    Qwen     Culture_11  -0.638    True         0.800 3.99       2.26         2.26
+  Gemini      Culture_5   0.131   False         0.875 8.48       1.49         1.49
+  Gemini Culture_Expert   0.076   False         0.875 8.24       1.45         1.45
+  Gemini     Culture_11  -0.443    True         0.875 6.85       1.21         1.21
+R12 CLAIM CHECKS (response level)
+  point gains over LB:
+condition  Culture_5  Culture_Expert  Culture_11
+family                                          
+Claude         0.971           0.301       0.057
+DeepSeek       0.713           0.501       0.007
+GPT            0.582           0.361       0.240
+Gemini         0.085           0.043      -0.203
+Llama          0.218           0.059      -0.320
+Mistral        0.149          -0.061      -0.410
+Qwen          -0.206          -0.324      -0.575
+  pct gains:
+condition  Culture_5  Culture_Expert  Culture_11
+family                                          
+Claude          34.2            10.6         2.0
+DeepSeek        27.1            19.0         0.2
+GPT             22.0            13.7         9.1
+Gemini           6.0             3.0       -14.4
+Llama            9.5             2.6       -14.0
+Mistral          6.3            -2.6       -17.4
+Qwen            -7.3           -11.4       -20.3
+  per-condition argmax:
+condition
+Culture_5           Claude
+Culture_Expert    DeepSeek
+Culture_11          Claude
+Large_Baseline      Claude
+  Claude overall mean: 3.097  Claude overall SD: 1.046
+DONE

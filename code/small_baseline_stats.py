@@ -16,7 +16,7 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION
 # ============================================================================
 
-DATA_PATH = "./What_to_keep_for_Github/data/unified_evaluations.csv"
+DATA_PATH = "./data/unified_evaluations.csv"
 RESULTS_PATH = "./results"
 os.makedirs(RESULTS_PATH, exist_ok=True)
 

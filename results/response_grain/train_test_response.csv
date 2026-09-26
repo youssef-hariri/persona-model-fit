@@ -1,0 +1,4 @@
+persona,d_train,d_test,delta
+Culture_5,0.31,0.515,0.205
+Culture_Expert,0.085,0.271,0.186
+Culture_11,-0.186,-0.097,0.089

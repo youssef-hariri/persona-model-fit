@@ -1,0 +1,13 @@
+persona,domain,d_response,d_rating,d_response_noGemini
+Culture_5,Creative,0.233,0.207,0.287
+Culture_5,GeneralKnowledge,0.628,0.495,0.732
+Culture_5,Instruction,0.185,0.159,0.24
+Culture_5,Reasoning,0.545,0.453,0.647
+Culture_Expert,Creative,0.036,0.032,0.035
+Culture_Expert,GeneralKnowledge,0.223,0.174,0.253
+Culture_Expert,Instruction,0.092,0.079,0.126
+Culture_Expert,Reasoning,0.21,0.175,0.247
+Culture_11,Creative,-0.196,-0.17,-0.209
+Culture_11,GeneralKnowledge,-0.154,-0.118,-0.139
+Culture_11,Instruction,-0.229,-0.198,-0.244
+Culture_11,Reasoning,-0.149,-0.124,-0.151

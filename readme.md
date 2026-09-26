@@ -5,6 +5,43 @@ DOI 10.5281/zenodo.19533619
 
 ---
 
+## September 2026 Revision (v2)
+
+A full statistical audit led to a revised version of the paper (same DOI: 10.5281/zenodo.19533619). The dataset is unchanged; the **unit of analysis** was corrected from the individual judge rating (pseudo-replicated) to the **response level** (N = 3,516 responses, each the mean of its nine judge ratings; 31,605 ratings total).
+
+Key corrected headline numbers:
+
+- Claude + Culture_5 on Novelty: Cohen's **d = 1.087** (was 0.908)
+- **11 of 21** model-persona comparisons reach statistical significance after FDR correction
+- No regional (East/West) moderation of persona effects (interaction **p = 0.445**)
+- Inter-rater reliability on the full dataset: Fleiss' **κ = 0.31–0.33** across the four core dimensions
+- Mean post-hoc power at response grain: **0.544**
+- Six qualifying model-persona combinations with Efficiency Gain Ratio up to **9.15**
+
+**New in this revision:**
+
+| Path | Contents |
+|---|---|
+| `code/recompute_all.py` | Corrected response-grain pipeline (reproduces all v2 statistics) |
+| `code/recompute_robustness.py` | Leave-one-out, train/test, mean-vs-median robustness checks |
+| `code/generate_figures_v2.py` | Regenerates all 8 revised figures from the frozen outputs |
+| `code/apply_fixes.py` | Fail-loud script that turns the original draft into the revised one (111 exact replacements) |
+| `results/response_grain/` | Frozen v2 outputs (21 CSVs + run log), hashed and verified |
+| `paper/` | Original and revised LaTeX sources, revised figures (`figures_v2/`), `CHANGE_LOG.md`, `DATA_MAP.md` (claim-to-data map), `SEMANTIC_MAP.md` (claim-to-evidence semantic map), `audit/` (audit memo and fix proposal) |
+
+The root PDF (`Youssef_Hariri_doing_more_with_less_llm_personas.pdf`) is the **original April 2026 version**; the revised compiled PDF is on Zenodo under the same DOI. The CSVs directly under `results/` are the **superseded rating-grain outputs**, kept as an audit trail.
+
+To verify the correction end to end:
+
+```bash
+pip install pandas numpy scipy statsmodels scikit-learn matplotlib
+python code/recompute_all.py          # recomputes every v2 statistic from data/unified_evaluations.csv
+python code/recompute_robustness.py   # robustness checks
+python code/generate_figures_v2.py    # regenerates the 8 revised figures
+```
+
+---
+
 ## Overview
 
 This repository provides:
@@ -34,7 +71,13 @@ Persona-model-fit/
 ├── code/
 │ └── stats_with_anlysis.py # Statistical analysis code.
 │ └── small_baseline_stats.py # Statistical analysis for the small baseline vs small baseline 		with persona 
+│ └── recompute_all.py # v2: corrected response-grain pipeline
+│ └── recompute_robustness.py # v2: robustness checks
+│ └── generate_figures_v2.py # v2: figure regeneration
+│ └── apply_fixes.py # v2: draft correction script
+├── paper/ # v2: LaTeX sources, figures, change log, data/semantic maps, audit trail
 └── results/ # Generated statistical outputs
+│ └── response_grain/ # v2 frozen outputs (response-level unit of analysis)
 
 
 ---
@@ -164,10 +207,11 @@ Prompts	MIT License
 ##Citation
 
 bibtex
-@article{hariri2025cultural,
+@article{hariri2026cultural,
   title={Doing More with Less: How Cultural Personas Bridge the Cost-Performance Gap in LLMs},
   author={Hariri, Youssef},
-  year={2025}
+  year={2026},
+  doi={10.5281/zenodo.19533619}
 }
 
 ##Contact
