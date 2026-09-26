@@ -7,6 +7,8 @@ DOI 10.5281/zenodo.19533619
 
 ## September 2026 Revision (v2)
 
+**Version record:** [v2.0](https://github.com/youssef-hariri/persona-model-fit/releases/tag/v2.0) (September 26, 2026) is the current revised version. The original April 2026 version is preserved as [v1.0](https://github.com/youssef-hariri/persona-model-fit/releases/tag/v1.0).
+
 A full statistical audit led to a revised version of the paper (same DOI: 10.5281/zenodo.19533619). The dataset is unchanged; the **unit of analysis** was corrected from the individual judge rating (pseudo-replicated) to the **response level** (N = 3,516 responses, each the mean of its nine judge ratings; 31,605 ratings total).
 
 Key corrected headline numbers:
